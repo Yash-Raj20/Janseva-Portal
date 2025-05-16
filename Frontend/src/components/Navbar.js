@@ -100,6 +100,14 @@ const UserMenu = ({ token, logout }) => {
                 <FaUser />
                 <span>Dashboard</span>
               </Link>
+              <Link
+                to="/profile"
+                onClick={() => setOpen(false)}
+                className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2"
+              >
+                <FaUser />
+                <span>Profile</span>
+              </Link>
               <button
                 onClick={() => {
                   logout();

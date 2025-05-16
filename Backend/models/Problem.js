@@ -8,27 +8,25 @@ const problemSchema = new mongoose.Schema(
     category: { type: String, required: true },
     urgency: { type: String, required: true },
     contact: { type: String, required: true },
+    image: { type: String }, // Optional image field
     status: {
       type: String,
       default: "Pending",
       enum: ["Pending", "Resolved"],
     },
     createdAt: { type: Date, default: Date.now },
-    // Upvotes now accept both ObjectId (for logged-in users) and String (for guests)
-    upvotes: [{ type: String, unique: true }], // Ensure no duplicate upvotes
+    upvotes: [{ type: String, unique: true }],
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     comments: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         text: String,
         createdAt: { type: Date, default: Date.now },
-      }
-    ]
+      },
+    ],
   },
   { timestamps: true }
 );
 
-// Add a unique index to ensure no duplicates in the 'upvotes' array
-problemSchema.index({ upvotes: 1 }, { unique: true });
 
 export default mongoose.model("Problem", problemSchema);

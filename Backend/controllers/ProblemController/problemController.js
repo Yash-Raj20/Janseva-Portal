@@ -1,13 +1,16 @@
-import Problem from "../models/Problem.js";
+import Problem from "../../models/Problem.js";
 import jwt from "jsonwebtoken";
-import Notification from "../models/Notification.js";
-import { io } from "../index.js";
+import Notification from "../../models/Notification.js";
+import { io } from "../../index.js";
 
 export const createProblem = async (req, res) => {
   try {
+    const imageUrl = req.file ? req.file.path : null; // Multer gives .path as URL from Cloudinary
+
     const problem = new Problem({
       ...req.body,
       userId: req.user.userId,
+      image: imageUrl,
     });
 
     await problem.save();

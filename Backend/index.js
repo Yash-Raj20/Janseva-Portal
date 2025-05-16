@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import http from 'http';
+import fs from 'fs';
+import path from 'path';
 import { Server } from 'socket.io'; 
 
 import connectDB from './config/db.js';
@@ -9,9 +11,16 @@ import authRoutes from './routes/authRoutes.js';
 import problemRoutes from './routes/problemRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import notificationRoutes from './routes/notificationRoute.js';
-import { createNotification } from './controllers/notifyController.js';
+import { createNotification } from './controllers/NotificationController/notifyController.js';
 
 dotenv.config();
+
+// Auto-create uploads folder
+const uploadsPath = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsPath)) {
+  fs.mkdirSync(uploadsPath);
+  console.log("✅ 'uploads' folder created");
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -23,7 +32,10 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Static file serving
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
+//Routes
 app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);

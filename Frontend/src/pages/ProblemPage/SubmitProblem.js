@@ -67,7 +67,7 @@ const SubmitProblem = () => {
     try {
       await axios.post("http://localhost:5000/api/problems", formData, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
           "Content-Type": "multipart/form-data",
         },
       });

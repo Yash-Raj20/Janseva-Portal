@@ -1,7 +1,7 @@
 import express from 'express';
 import Problem from '../models/Problem.js';
 import { protect, isAdmin } from '../middleware/adminMiddleware.js';
-import { loginAdmin, registerAdmin } from "../controllers/adminController.js";
+import { loginAdmin, registerAdmin } from "../controllers/AdminController/adminController.js";
 
 const router = express.Router();
 

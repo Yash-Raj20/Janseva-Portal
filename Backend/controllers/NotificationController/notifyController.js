@@ -1,4 +1,4 @@
-import Notification from '../models/Notification.js';
+import Notification from '../../models/Notification.js';
 import mongoose from 'mongoose';
 
 // Get all notifications for a user

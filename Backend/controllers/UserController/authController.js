@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
-import Problem from "../models/Problem.js";
+import User from "../../models/User.js";
+import Problem from "../../models/Problem.js";
+import Notification from "../../models/Notification.js"; // ✅ Import added
 
 // Register User
 export const registerUser = async (req, res) => {
@@ -17,14 +18,10 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
-    if (!user)
+    if (!user || !(await user.comparePassword(req.body.password))) {
       return res.status(400).json({ error: "Invalid email or password" });
+    }
 
-    const isMatch = await user.comparePassword(req.body.password);
-    if (!isMatch)
-      return res.status(400).json({ error: "Invalid email or password" });
-
-    // Generate JWT token
     const token = jwt.sign(
       { user: { id: user._id, email: user.email } },
       process.env.JWT_SECRET,
@@ -40,12 +37,8 @@ export const loginUser = async (req, res) => {
 // Get Profile Info
 export const profile = async (req, res) => {
   try {
-    const issues = await Problem.find({ createdBy: req.user._id }).sort({
-      createdAt: -1,
-    });
-    const notifications = await Notification.find({ user: req.user._id }).sort({
-      createdAt: -1,
-    });
+    const issues = await Problem.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
+    const notifications = await Notification.find({ user: req.user._id }).sort({ createdAt: -1 });
 
     res.status(200).json({
       user: {

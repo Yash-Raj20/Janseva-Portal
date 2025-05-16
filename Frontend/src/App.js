@@ -16,6 +16,7 @@ import Notifications from './pages/NotificationPage/NotificationsPage';
 import { AuthProvider } from './context/AuthContext';
 import SocketNotification from "./components/NotificationSection/SocketNotification";
 import { Toaster } from 'react-hot-toast';
+import Profile from './pages/UserPage/Profile';
 
 function App() {
   const userId = localStorage.getItem('userId');
@@ -33,6 +34,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/submit" element={<SubmitProblem />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="/all-problems" element={<AllProblems />} />
           <Route path="/all-community" element={<AllCommunity />} />
           <Route path="/notifications" element={<Notifications />} />

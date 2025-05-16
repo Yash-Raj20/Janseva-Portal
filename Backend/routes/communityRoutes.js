@@ -5,7 +5,7 @@ import {
   getAvailableProblem, 
   pickProblem, 
   submitProof 
-} from '../controllers/communityController.js';
+} from '../controllers/CommunityController/communityController.js';
 
 const router = express.Router();
 
