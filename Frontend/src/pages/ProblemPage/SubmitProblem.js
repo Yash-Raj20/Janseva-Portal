@@ -2,6 +2,15 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import axios from "../../api/axios";
+import { MapPin, Megaphone, Users } from "lucide-react";
+import { motion } from "framer-motion";
+
+const assets = [
+  "/assets/img1.jpg",
+  "/assets/img2.jpg",
+  "/assets/img3.jpg",
+  "/assets/img4.jpg",
+];
 
 const SubmitProblem = () => {
   const { token } = useAuth();
@@ -14,243 +23,294 @@ const SubmitProblem = () => {
     category: "",
     urgency: "",
     contact: "",
+    image: null,
   });
 
   useEffect(() => {
     if (!token) navigate("/login");
   }, [token, navigate]);
 
+  const handleImageChange = (e) => {
+    if (e.target.files[0]) {
+      setProblem((prev) => ({ ...prev, image: e.target.files[0] }));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { title, description, location, category, urgency, contact, image } =
+      problem;
 
-    const { title, description, location, category, urgency, contact } = problem;
-    if (!title || !description || !location || !category || !urgency || !contact) {
+    if (
+      !title ||
+      !description ||
+      !location ||
+      !category ||
+      !urgency ||
+      !contact
+    ) {
       alert("Please fill in all the required fields.");
       return;
     }
 
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("location", location);
+    formData.append("category", category);
+    formData.append("urgency", urgency);
+    formData.append("contact", contact);
+    if (image) {
+      formData.append("image", image);
+    }
+
     try {
-      await axios.post("http://localhost:5000/api/problems", problem, {
+      await axios.post("http://localhost:5000/api/problems", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
         },
       });
-      navigate("/"); 
+      alert("Problem submitted successfully!");
+      navigate("/");
     } catch (error) {
       console.error("Problem submission failed", error);
+      alert("Failed to submit problem. Please try again.");
     }
   };
 
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 via-blue-50 to-sky-200 py-10 px-4">
-      <div className="max-w-5xl mx-auto text-center mb-10">
-        <h1 className="text-4xl font-extrabold text-blue-800 mb-2">
-          Your Voice, India's Progress
-        </h1>
-        <p className="text-gray-600 text-lg">
-          Join the movement toward a Viksit Bharat. Report local issues, raise
-          awareness, and help build smarter, cleaner, and safer cities.
-        </p>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-          <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-2xl font-bold text-green-600">124+</h3>
-            <p className="text-sm text-gray-700">Problems Resolved</p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-2xl font-bold text-blue-600">20+</h3>
-            <p className="text-sm text-gray-700">Cities Engaged</p>
-          </div>
-          <div className="bg-white shadow-md rounded-lg p-4">
-            <h3 className="text-2xl font-bold text-yellow-600">500+</h3>
-            <p className="text-sm text-gray-700">Active Citizens</p>
-          </div>
-        </div>
-      </div>
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat px-4 font-poppins pt-28 lg:pt-36 sm:px-4 lg:px-4 py-16 lg:py-16"
+      style={{ backgroundImage: "url('/assets/PageBg.jpg')" }}
+    >
+      <div className="max-w-[92%] mx-auto flex flex-col lg:flex-row gap-10">
+        {/* Left Section */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full lg:w-[85%] flex flex-col gap-8"
+        >
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0C2218] text-center lg:text-left">
+            Raise Your Voice for a Viksit Bharat 🇮🇳
+          </h1>
+          <p className="text-gray-700 text-base sm:text-lg lg:text-left">
+            Together we can fix local issues and shape a smarter future.
+          </p>
 
-      {/* Step-by-step guide */}
-      <div className="max-w-6xl mx-auto mt-12 mb-10">
-        <h2 className="text-2xl font-bold text-blue-700 mb-4 text-center">
-          How It Works
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-          <div className="bg-white rounded-xl shadow-md p-4">
-            <span className="text-3xl text-blue-600 font-bold">1️⃣</span>
-            <p className="mt-2 font-semibold">Describe the Issue</p>
-            <p className="text-sm text-gray-600">
-              Be clear and detailed about the problem.
-            </p>
+          {/* Photo Gallery */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {assets.map((src, i) => (
+              <img
+                key={i}
+                src={src}
+                alt={`img scene ${i + 1}`}
+                className="object-cover w-full h-40 rounded-lg hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+              />
+            ))}
           </div>
-          <div className="bg-white rounded-xl shadow-md p-4">
-            <span className="text-3xl text-blue-600 font-bold">2️⃣</span>
-            <p className="mt-2 font-semibold">Share Location & Details</p>
-            <p className="text-sm text-gray-600">
-              Help us pinpoint where the issue exists.
-            </p>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mt-8">
+            <div className="bg-white shadow-md rounded-xl p-6">
+              <Megaphone className="text-[#0C2218] w-8 h-8 mx-auto mb-2" />
+              <h3 className="text-2xl font-bold text-[#0C2218]">124+</h3>
+              <p className="text-sm text-gray-700">Problems Resolved</p>
+            </div>
+            <div className="bg-white shadow-md rounded-xl p-6">
+              <MapPin className="text-[#0C2218] w-8 h-8 mx-auto mb-2" />
+              <h3 className="text-2xl font-bold text-[#0C2218]">20+</h3>
+              <p className="text-sm text-gray-700">Cities Engaged</p>
+            </div>
+            <div className="bg-white shadow-md rounded-xl p-6">
+              <Users className="text-yellow-600 w-8 h-8 mx-auto mb-2" />
+              <h3 className="text-2xl font-bold text-yellow-600">500+</h3>
+              <p className="text-sm text-gray-700">Active Citizens</p>
+            </div>
           </div>
-          <div className="bg-white rounded-xl shadow-md p-4">
-            <span className="text-3xl text-blue-600 font-bold">3️⃣</span>
-            <p className="mt-2 font-semibold">Track Progress</p>
-            <p className="text-sm text-gray-600">
-              We’ll keep you updated once authorities respond.
-            </p>
+
+          {/* Process Steps */}
+          <div className="mt-12 bg-white rounded-xl shadow-md p-6">
+            <h2 className="text-2xl font-bold text-[#0C2218] mb-6 text-center">
+              How It Works
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+              {[
+                {
+                  icon: "📝",
+                  title: "Describe the Issue",
+                  desc: "Be clear and detailed.",
+                },
+                {
+                  icon: "📍",
+                  title: "Add Location",
+                  desc: "Help us identify where.",
+                },
+                {
+                  icon: "🔄",
+                  title: "Track Progress",
+                  desc: "Stay updated regularly.",
+                },
+              ].map((step, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.05 }}
+                  className="bg-sky-50 rounded-xl shadow-md p-4"
+                >
+                  <div className="text-4xl">{step.icon}</div>
+                  <p className="mt-3 font-semibold">{step.title}</p>
+                  <p className="text-sm text-gray-600">{step.desc}</p>
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
-      </div>
+        </motion.div>
 
-      {/* Quote or testimonial */}
-      <div className="max-w-5xl mx-auto mb-10 bg-white p-6 rounded-xl shadow-lg text-center">
-        <p className="italic text-lg text-gray-700">
-          "When citizens speak up, transformation begins. Thanks to ViksitCity,
-          our local park finally got cleaned!"
-        </p>
-        <p className="mt-2 font-semibold text-blue-600">
-          — Priya Sharma, Indore
-        </p>
-      </div>
+        {/* Divider for mobile */}
+        <hr className="block lg:hidden border-t my-5 border-gray-300" />
 
-      <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-2xl p-8">
-        <h2 className="text-4xl font-bold text-center text-blue-700 mb-4">
-          Report a Local Problem
-        </h2>
-        <p className="text-center text-gray-600 mb-8">
-          Contribute to a Viksit Bharat by raising your voice. Your issue
-          matters.
-        </p>
+        {/* Right Section - Form */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full lg:w-full bg-white shadow-2xl rounded-2xl p-6 sm:p-6"
+        >
+          <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2218] mt-4 mb-2 text-center">
+            Report a Local Problem
+          </h2>
+          <p className="text-gray-600 text-base sm:text-lg mb-8 text-center">
+            Let your voice be heard. Every issue matters.
+          </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label
-              htmlFor="title"
-              className="block font-semibold mb-1 text-gray-700"
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-6">
+            {[
+              ["Problem Title", "title", "text"],
+              ["Exact Location", "location", "text"],
+              ["Your Contact (Phone or Email)", "contact", "text"],
+            ].map(([label, id, type]) => (
+              <div key={id}>
+                <label
+                  htmlFor={id}
+                  className="block font-medium text-gray-700 mb-1"
+                >
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  id={id}
+                  value={problem[id]}
+                  onChange={(e) =>
+                    setProblem({ ...problem, [id]: e.target.value })
+                  }
+                  className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
+                  required
+                />
+              </div>
+            ))}
+
+            <div>
+              <label
+                htmlFor="description"
+                className="block font-medium text-gray-700 mb-1"
+              >
+                Problem Description
+              </label>
+              <textarea
+                id="description"
+                rows="4"
+                value={problem.description}
+                onChange={(e) =>
+                  setProblem({ ...problem, description: e.target.value })
+                }
+                className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div>
+                <label
+                  htmlFor="category"
+                  className="block font-medium text-gray-700 mb-1"
+                >
+                  Category
+                </label>
+                <select
+                  id="category"
+                  value={problem.category}
+                  onChange={(e) =>
+                    setProblem({ ...problem, category: e.target.value })
+                  }
+                  className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
+                  required
+                >
+                  <option value="">Select Category</option>
+                  <option value="road">Road & Transport</option>
+                  <option value="water">Water & Sanitation</option>
+                  <option value="electricity">Electricity</option>
+                  <option value="waste">Waste Management</option>
+                  <option value="health">Public Health</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="urgency"
+                  className="block font-medium text-gray-700 mb-1"
+                >
+                  Urgency
+                </label>
+                <select
+                  id="urgency"
+                  value={problem.urgency}
+                  onChange={(e) =>
+                    setProblem({ ...problem, urgency: e.target.value })
+                  }
+                  className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
+                  required
+                >
+                  <option value="">Select Urgency</option>
+                  <option value="low">Low</option>
+                  <option value="moderate">Moderate</option>
+                  <option value="high">High</option>
+                  <option value="critical">Critical</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label
+                htmlFor="image"
+                className="block font-medium text-gray-700 mb-1"
+              >
+                Upload Image (Optional)
+              </label>
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="w-full p-2 border border-gray-300 rounded-xl cursor-pointer"
+              />
+              {problem.image && (
+                <p className="mt-2 text-sm text-green-600">
+                  Selected file: {problem.image.name}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              className="w-full bg-[#0C2218] text-white hover:bg-[#1b3c2a] sm:text-lg font-semibold py-3 rounded-xl transition duration-200"
             >
-              Problem Title
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={problem.title}
-              onChange={(e) =>
-                setProblem({ ...problem, title: e.target.value })
-              }
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="description"
-              className="block font-semibold mb-1 text-gray-700"
-            >
-              Detailed Description
-            </label>
-            <textarea
-              id="description"
-              rows="4"
-              value={problem.description}
-              onChange={(e) =>
-                setProblem({ ...problem, description: e.target.value })
-              }
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="location"
-              className="block font-semibold mb-1 text-gray-700"
-            >
-              Exact Location
-            </label>
-            <input
-              type="text"
-              id="location"
-              value={problem.location}
-              onChange={(e) =>
-                setProblem({ ...problem, location: e.target.value })
-              }
-              className="w-full p-3 border border-gray-300 rounded-xl focus:outline-blue-500"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="category"
-              className="block font-semibold mb-1 text-gray-700"
-            >
-              Category
-            </label>
-            <select
-              id="category"
-              value={problem.category}
-              onChange={(e) =>
-                setProblem({ ...problem, category: e.target.value })
-              }
-              className="w-full p-3 border border-gray-300 rounded-xl"
-              required
-            >
-              <option value="">Select Category</option>
-              <option value="road">Road & Transport</option>
-              <option value="water">Water & Sanitation</option>
-              <option value="electricity">Electricity</option>
-              <option value="waste">Waste Management</option>
-              <option value="health">Public Health</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="urgency"
-              className="block font-semibold mb-1 text-gray-700"
-            >
-              Urgency Level
-            </label>
-            <select
-              id="urgency"
-              value={problem.urgency}
-              onChange={(e) =>
-                setProblem({ ...problem, urgency: e.target.value })
-              }
-              className="w-full p-3 border border-gray-300 rounded-xl"
-              required
-            >
-              <option value="">Select Urgency</option>
-              <option value="low">Low</option>
-              <option value="moderate">Moderate</option>
-              <option value="high">High</option>
-              <option value="critical">Critical</option>
-            </select>
-          </div>
-
-          <div>
-            <label
-              htmlFor="contact"
-              className="block font-semibold mb-1 text-gray-700"
-            >
-              Your Contact (Phone or Email)
-            </label>
-            <input
-              type="text"
-              id="contact"
-              value={problem.contact}
-              onChange={(e) =>
-                setProblem({ ...problem, contact: e.target.value })
-              }
-              className="w-full p-3 border border-gray-300 rounded-xl"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition duration-200"
-          >
-            🚀 Submit for a Viksit Bharat
-          </button>
-        </form>
+              🚀 Submit Your Problem
+            </button>
+          </form>
+        </motion.div>
       </div>
     </div>
   );
