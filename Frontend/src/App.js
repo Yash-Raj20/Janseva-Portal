@@ -8,15 +8,18 @@ import NotFoundPage from './NotFoundPage ';
 import Login from './pages/AuthPage/Login';
 import Register from './pages/AuthPage/Register';
 import SubmitProblem from './pages/ProblemPage/SubmitProblem';
-import Dashboard from './pages/UserPage/Dashboard';
+import Dashboard from './pages/UserDashboardPage/Dashboard';
 import AllProblems from './pages/ProblemPage/AllProblems';
 import AllCommunity from './pages/CommunityPage/AllCommunity';
-import Notifications from './pages/NotificationPage/NotificationsPage';
+import Notifications from './pages/UserDashboardPage/Notifications';
 // import VolunteerDashboard from "./pages/VolunteerDashboard";
 import { AuthProvider } from './context/AuthContext';
 import SocketNotification from "./components/NotificationSection/SocketNotification";
 import { Toaster } from 'react-hot-toast';
-import Profile from './pages/UserPage/Profile';
+import Profile from './pages/UserDashboardPage/Profile';
+import Layout from './layout/Layout';
+import MyIssue from './pages/UserDashboardPage/MyIssue';
+import SolvedIssue from './pages/UserDashboardPage/SolvedIssue';
 
 function App() {
   const userId = localStorage.getItem('userId');
@@ -33,14 +36,23 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/submit" element={<SubmitProblem />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
           <Route path="/all-problems" element={<AllProblems />} />
           <Route path="/all-community" element={<AllCommunity />} />
-          <Route path="/notifications" element={<Notifications />} />
-          {/* <Route path="/volunteer" element={<VolunteerDashboard />} /> */}
+          {/* Dashboard and its nested routes */}
+          <Route path="/dashboard" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="profile" element={<Profile />} /> 
+            <Route path="my-issues" element={<MyIssue />} />
+            <Route path="solved-issues" element={<SolvedIssue />} /> 
+            <Route path="notifications" element={<Notifications />} /> 
+            {/* Add more sub-routes here */}
+          </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
+
+        {/* Dashboard Route */}
+          
+
         <Footer />
         {userId && <SocketNotification userId={userId} />}
       </AuthProvider>

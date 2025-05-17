@@ -41,29 +41,25 @@ const AdminProblems = () => {
     setFiltered(list);
   }, [categoryFilter, urgencyFilter, problems]);
 
-  const handleStatusUpdate = async (id, currentStatus) => {
-    const updatedStatus = currentStatus === "Resolved" ? "Pending" : "Resolved"; // Toggle status
-  
+  const handleStatusUpdate = async (id, updatedStatus) => {
+    if (!token) {
+      alert("You need to be logged in to update the status.");
+      return;
+    }
+
     try {
-      if (!token) {
-        alert("You need to be logged in to update the status.");
-        return;
-      }
-  
-      const res = await axios.patch(
-        `http://localhost:5000/api/problems/${id}`,
+      const res = await axios.put(
+        `/problems/${id}/status`,
         { status: updatedStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       if (res.status === 200) {
-        // Update the status in the local state
         setProblems((prevProblems) =>
           prevProblems.map((problem) =>
             problem._id === id ? { ...problem, status: updatedStatus } : problem
           )
         );
-        alert("Problem status updated successfully!");
       } else {
         throw new Error("Failed to update status");
       }
@@ -71,8 +67,8 @@ const AdminProblems = () => {
       setError("Status update failed. Please try again.");
       console.error(err);
     }
-  };  
-  
+  };
+
   const clearFilters = () => {
     setCategoryFilter("");
     setUrgencyFilter("");
@@ -80,7 +76,9 @@ const AdminProblems = () => {
 
   return (
     <div className="bg-gray-50 p-6">
-      <h1 className="text-3xl font-bold text-blue-800 mb-6">🛠️ Admin - All Problems</h1>
+      <h1 className="text-3xl font-bold text-blue-800 mb-6">
+        🛠️ Admin - All Problems
+      </h1>
 
       {error && (
         <div className="bg-red-200 text-red-800 p-4 rounded mb-4">{error}</div>
@@ -135,7 +133,6 @@ const AdminProblems = () => {
                 <th className="px-4 py-3">Location</th>
                 <th className="px-4 py-3">Contact</th>
                 <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -147,25 +144,40 @@ const AdminProblems = () => {
                   <td className="px-4 py-2">{problem.location}</td>
                   <td className="px-4 py-2">{problem.contact}</td>
                   <td className="px-4 py-2">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-semibold ${
-                        problem.status === "Resolved"
-                          ? "bg-green-200 text-green-800"
-                          : "bg-yellow-200 text-yellow-800"
-                      }`}
-                    >
-                      {problem.status || "Pending"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-2">
-                    <button
-                      onClick={() =>
-                        handleStatusUpdate(problem._id, problem.status)
+                    <select
+                      value={problem.status}
+                      onChange={(e) =>
+                        handleStatusUpdate(problem._id, e.target.value)
                       }
-                      className="text-xs px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded"
+                      className={`text-xs px-2 py-1 rounded border font-semibold
+                        ${
+                          problem.status === "Resolved"
+                            ? "bg-green-200 text-green-800"
+                            : problem.status === "Process"
+                            ? "bg-blue-200 text-blue-800"
+                            : "bg-yellow-200 text-yellow-800"
+                        }
+                      `}
                     >
-                      Toggle
-                    </button>
+                      <option
+                        value="Pending"
+                        className="text-yellow-800 bg-yellow-100"
+                      >
+                        Pending
+                      </option>
+                      <option
+                        value="Process"
+                        className="text-blue-800 bg-blue-100"
+                      >
+                        Process
+                      </option>
+                      <option
+                        value="Resolved"
+                        className="text-green-800 bg-green-100"
+                      >
+                        Resolved
+                      </option>
+                    </select>
                   </td>
                 </tr>
               ))}

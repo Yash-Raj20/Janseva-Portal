@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaSignInAlt, FaUserPlus, FaUser, FaPowerOff } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { useNotifications } from "../context/NotificationContext";
+import NotificationDropdown from "./NotificationBox";
 import "./Hamburger.css";
 
 const useOutsideClick = (ref, onClose) => {
@@ -20,9 +22,14 @@ const HamburgerMenu = () => {
   const { token, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
+  const { notifications } = useNotifications();
+  const unreadCount = notifications.length;
+
   useOutsideClick(menuRef, () => setOpen(false));
 
-  const menuItems = [
+  const toggleMenu = () => setOpen((prev) => !prev);
+
+  const mainMenuItems = [
     { label: "Home", link: "/" },
     { label: "About", link: "/about-us" },
     { label: "Problems", link: "/all-problems" },
@@ -30,23 +37,71 @@ const HamburgerMenu = () => {
     { label: "Contact", link: "/contact-us" },
   ];
 
+  const authMenuItems = token
+    ? [
+        {
+          label: "Dashboard",
+          link: "/dashboard",
+          icon: <FaUser />,
+          action: () => setOpen(false),
+        },
+        {
+          label: "Logout",
+          icon: <FaPowerOff />,
+          action: () => {
+            logout();
+            setOpen(false);
+          },
+        },
+      ]
+    : [
+        {
+          label: "Login",
+          link: "/login",
+          icon: <FaSignInAlt />,
+          action: () => setOpen(false),
+        },
+        {
+          label: "Register",
+          link: "/register",
+          icon: <FaUserPlus />,
+          action: () => setOpen(false),
+        },
+      ];
+
   return (
-    <div className="lg:hidden relative z-50" ref={menuRef}>
-      {/* Custom animated hamburger menu */}
+    <div
+      className="lg:hidden relative z-50 flex items-center gap-4"
+      ref={menuRef}
+    >
+      {/* ✅ Notification Bell Dropdown */}
+      {token && (
+        <div className="relative">
+          <NotificationDropdown />
+          {unreadCount > 0 && (
+            <span className="absolute -top-2 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+              {unreadCount}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* ☰ Hamburger Icon */}
       <input
         type="checkbox"
         className="menu"
         checked={open}
-        onChange={() => setOpen(!open)}
-        aria-label="Toggle Menu"
+        onChange={toggleMenu}
+        aria-label="Toggle menu"
       />
 
+      {/* 📜 Dropdown Panel */}
       {open && (
-        <div className="absolute top-16 right-0 bg-white shadow-xl rounded-lg w-48 p-5 flex flex-col space-y-4">
-          {/* Render main menu items */}
-          {menuItems.map((item, idx) => (
+        <div className="absolute top-16 right-0 bg-white shadow-xl rounded-lg w-52 sm:w-60 p-5 flex flex-col space-y-4 z-50">
+          {/* 🌐 Static Menu */}
+          {mainMenuItems.map((item) => (
             <Link
-              key={idx}
+              key={item.link}
               to={item.link}
               onClick={() => setOpen(false)}
               className="text-[#0C2218] hover:text-[#b89e37] font-medium transition"
@@ -55,47 +110,28 @@ const HamburgerMenu = () => {
             </Link>
           ))}
 
-          {/* User Menu (Login/Register or Dashboard/Logout) */}
-          {token ? (
-            <>
+          {/* 👤 Auth Menu */}
+          {authMenuItems.map((item, index) =>
+            item.link ? (
               <Link
-                to="/dashboard"
-                onClick={() => setOpen(false)}
-                className="text-[#0C2218] hover:text-[#b89e37] flex items-center space-x-2 font-medium transition"
+                key={index}
+                to={item.link}
+                onClick={item.action}
+                className="text-[#0C2218] hover:text-[#b89e37] font-medium transition flex items-center gap-2"
               >
-                <FaUser />
-                <span>Dashboard</span>
+                {item.icon}
+                <span>{item.label}</span>
               </Link>
+            ) : (
               <button
-                onClick={() => {
-                  logout();
-                  setOpen(false);
-                }}
-                className="text-[#0C2218] hover:text-[#b89e37] font-medium transition flex items-center space-x-2"
+                key={index}
+                onClick={item.action}
+                className="text-[#0C2218] hover:text-[#b89e37] font-medium transition flex items-center gap-2"
               >
-                <FaPowerOff />
-                <span>Logout</span>
+                {item.icon}
+                <span>{item.label}</span>
               </button>
-            </>
-          ) : (
-            <>
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="text-[#0C2218] hover:text-[#b89e37] font-medium transition flex items-center space-x-2"
-              >
-                <FaSignInAlt />
-                <span>Login</span>
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setOpen(false)}
-                className="text-[#0C2218] hover:text-[#b89e37] font-medium transition flex items-center space-x-2"
-              >
-                <FaUserPlus />
-                <span>Register</span>
-              </Link>
-            </>
+            )
           )}
         </div>
       )}

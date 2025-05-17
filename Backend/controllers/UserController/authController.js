@@ -37,8 +37,10 @@ export const loginUser = async (req, res) => {
 // Get Profile Info
 export const profile = async (req, res) => {
   try {
-    const issues = await Problem.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
-    const notifications = await Notification.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const userId = req.user.id;
+
+    const problems = await Problem.find({ userId }).sort({ createdAt: -1 });
+    const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
 
     res.status(200).json({
       user: {
@@ -46,10 +48,11 @@ export const profile = async (req, res) => {
         email: req.user.email,
         createdAt: req.user.createdAt,
       },
-      issues,
+      problems,
       notifications,
     });
   } catch (error) {
+    console.error("Error in profile route:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };

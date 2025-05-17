@@ -17,7 +17,7 @@ const router = express.Router();
 router.post("/create", verifyToken, upload.single("image"), createProblem);
 
 router.get("/", getAllProblems);
-router.put("/status/:id", verifyToken, updateStatus);
+router.put("/:id/status", verifyToken, updateStatus);
 router.post("/upvote/:id", verifyToken, upvote);
 router.get("/top", topVoted);
 router.post("/comment/:id", verifyToken, comment);

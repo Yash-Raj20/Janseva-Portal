@@ -1,11 +1,12 @@
 import Problem from "../../models/Problem.js";
 import jwt from "jsonwebtoken";
+import { createNotification } from "../NotificationController/notifyController.js";
 import Notification from "../../models/Notification.js";
 import { io } from "../../index.js";
 
 export const createProblem = async (req, res) => {
   try {
-    const imageUrl = req.file ? req.file.path : null; // Multer gives .path as URL from Cloudinary
+    const imageUrl = req.file ? req.file.path : null;
 
     const problem = new Problem({
       ...req.body,
@@ -39,50 +40,49 @@ export const getAllProblems = async (req, res) => {
 };
 
 export const updateStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
   try {
-    const { id } = req.params; // Get the ID from the URL
-    const { status } = req.body; // Get the new status from the request body
-
-    // Find the problem by ID and update the status
-    const updatedProblem = await Problem.findByIdAndUpdate(
-      id,
-      { status }, // Update the status
-      { new: true } // Return the updated document
-    );
-
-    if (!updatedProblem) {
-      return res.status(404).json({ message: "Problem not found" }); // Handle case when problem doesn't exist
+    const problem = await Problem.findById(id); // or .populate("user") if needed
+    if (!problem) {
+      return res.status(404).json({ message: "Problem not found" });
     }
 
-    // Check if the userId exists in the updated problem
-    if (!updatedProblem.userId) {
+    // ✅ Make sure user exists
+    const userId = problem.userId;
+    if (!userId) {
       return res
         .status(400)
         .json({ message: "Problem has no associated user" });
     }
 
-    // Create and save a notification for the user
-    const notification = new Notification({
-      user: updatedProblem.userId,
-      message: `Your issue "${updatedProblem.title}" has been updated to "${status}".`,
-    });
+    // ✅ Update problem status
+    problem.status = status;
+    await problem.save();
 
-    // Save the notification
-    await notification.save();
+    // ✅ Send notification
+    const problemTitle = problem.title;
 
-    // Emit the notification through socket (if using socket.io)
-    io.emit("newNotification", {
-      userId: updatedProblem.userId.toString(),
-      message: notification.message,
-    });
+    let message = "";
+    let type = "";
+    if (status === "Resolved") {
+      message = `✅ Your problem "${problemTitle}" has been resolved!`;
+      type = "resolved";
+    } else if (status === "Process") {
+      message = `🔄 Your problem "${problemTitle}" is now being processed.`;
+      type = "process";
+    } else {
+      message = `🕒 Your problem "${problemTitle}" is still pending.`;
+      type = "pending";
+    }
 
-    // Return the updated problem with a success response
-    res
-      .status(200)
-      .json({ message: "Status updated successfully", updatedProblem });
+    await createNotification(problem.userId, message, type); //
+
+    res.status(200).json({ message: "Status updated", problem });
   } catch (error) {
-    console.error("Error updating problem status:", error);
-    res.status(500).json({ message: "Failed to update problem status" }); // Handle errors
+    console.error("Error updating status:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -97,25 +97,31 @@ export const upvote = async (req, res) => {
 
     // Check if the user is logged in
     if (!req.user) {
-      return res.status(401).json({ message: "You must be logged in to upvote." });
+      return res
+        .status(401)
+        .json({ message: "You must be logged in to upvote." });
     }
 
     // Prevent duplicate upvotes from the same user
     if (problem.upvotes.includes(req.user._id.toString())) {
-      return res.status(400).json({ message: "You already upvoted this problem." });
+      return res
+        .status(400)
+        .json({ message: "You already upvoted this problem." });
     }
 
     // Add user ID to the upvotes array
     problem.upvotes.push(req.user._id);
     await problem.save();
 
-    res.status(200).json({ message: "Upvoted successfully", upvotes: problem.upvotes.length });
+    res.status(200).json({
+      message: "Upvoted successfully",
+      upvotes: problem.upvotes.length,
+    });
   } catch (error) {
     console.error("Error in upvoting:", error);
     res.status(500).json({ message: "Server Error" });
   }
 };
-
 
 // Get Top 5 Most Upvoted Issues
 export const topVoted = async (req, res) => {

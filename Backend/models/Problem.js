@@ -12,7 +12,7 @@ const problemSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Pending",
-      enum: ["Pending", "Resolved"],
+      enum: ["Pending","Process", "Resolved"],
     },
     createdAt: { type: Date, default: Date.now },
     upvotes: [{ type: String, unique: true }],

@@ -1,17 +1,16 @@
 /* eslint-disable no-unused-vars */
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import NotificationDropdown from "./NotificationBox";
 import {
   FaSignInAlt,
   FaUserPlus,
   FaPowerOff,
   FaUser,
-  FaBell,
 } from "react-icons/fa";
 import { useEffect, useState, useRef } from "react";
-import axios from "../api/axios";
-import { io } from "socket.io-client";
 import HamburgerMenu from "./HamburgerMenu";
+import { useNotifications } from "../context/NotificationContext";
 
 const useOutsideClick = (ref, onClose) => {
   useEffect(() => {
@@ -73,40 +72,20 @@ const UserMenu = ({ token, logout }) => {
         <div className="absolute right-0 mt-2 w-48 bg-white text-gray-500 rounded-md shadow-lg z-20">
           {!token ? (
             <>
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2"
-              >
+              <Link to="/login" onClick={() => setOpen(false)} className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                 <FaSignInAlt />
                 <span>Login</span>
               </Link>
-              <Link
-                to="/register"
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2"
-              >
+              <Link to="/register" onClick={() => setOpen(false)} className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                 <FaUserPlus />
                 <span>Register</span>
               </Link>
             </>
           ) : (
             <>
-              <Link
-                to="/dashboard"
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2"
-              >
+              <Link to="/dashboard" onClick={() => setOpen(false)} className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2">
                 <FaUser />
                 <span>Dashboard</span>
-              </Link>
-              <Link
-                to="/profile"
-                onClick={() => setOpen(false)}
-                className="px-4 py-2 hover:bg-gray-100 flex items-center space-x-2"
-              >
-                <FaUser />
-                <span>Profile</span>
               </Link>
               <button
                 onClick={() => {
@@ -128,120 +107,63 @@ const UserMenu = ({ token, logout }) => {
 
 const Navbar = () => {
   const { token, logout } = useAuth();
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [loading, setLoading] = useState(true);
   const [scrolled, setScrolled] = useState(false);
-
-  // const socket = io("http://localhost:5000");
-
-  useEffect(() => {
-    if (token) {
-      setLoading(true);
-      axios
-        .get("/notifications", {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-        .then((res) => {
-          setNotifications(res.data);
-          setUnreadCount(res.data.filter((notif) => !notif.isRead).length);
-        })
-        .catch((err) => {
-          console.error("Error fetching notifications:", err);
-        })
-        .finally(() => {
-          setLoading(false);
-        });
-    }
-  }, [token]);
-
-  // useEffect(() => {
-  //   if (token) {
-  //     socket.on("newNotification", (data) => {
-  //       setNotifications((prevNotifications) => [
-  //         ...prevNotifications,
-  //         data.message,
-  //       ]);
-  //       setUnreadCount((prevCount) => prevCount + 1);
-  //     });
-  //   }
-  //   return () => {
-  //     socket.off("newNotification");
-  //   };
-  // }, [token, socket]);
+  const { notifications } = useNotifications();
+  const unreadCount = notifications.length;
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-
+    const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <nav
-      className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 md:px-10 lg:px-20 py-3 md:py-4 transition-all duration-500 font-poppins ${
-        scrolled ? "bg-white shadow-md" : "bg-transparent"
-      }`}
-    >
+    <nav className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 md:px-10 lg:px-20 py-3 md:py-4 transition-all duration-500 font-poppins ${
+      scrolled ? "bg-white shadow-md" : "bg-transparent"
+    }`}>
       <div className="flex justify-between items-center">
         {/* Logo */}
-        <Link
-          to="/"
-          className="text-xl md:text-2xl font-extrabold text-black flex items-center space-x-2"
-        >
+        <Link to="/" className="text-xl md:text-2xl font-extrabold text-black flex items-center space-x-2">
           <img
-            src="./Logo/signature.svg"
+            src="/Logo/signature.svg"
             alt="JanSeva Portal"
             className="h-8 md:h-10 w-auto object-cover"
+            loading="lazy"
           />
         </Link>
 
         {/* Desktop Menu */}
         <div className="hidden lg:flex gap-6 xl:gap-10 uppercase text-[14px] md:text-[16px] text-[#0C2218] font-normal">
-          <Link to="/" className="hover:text-[#b89e37] transition">
-            Home
-          </Link>
-          <Link to="/about-us" className="hover:text-[#b89e37] transition">
-            About
-          </Link>
-          <Link to="/all-problems" className="hover:text-[#b89e37] transition">
-            Problems
-          </Link>
-          <Link to="/submit" className="hover:text-[#b89e37] transition">
-            Raise Problem
-          </Link>
-          <Link to="/contact-us" className="hover:text-[#b89e37] transition">
-            Contact
-          </Link>
+          <Link to="/" className="hover:text-[#b89e37] transition">Home</Link>
+          <Link to="/about-us" className="hover:text-[#b89e37] transition">About</Link>
+          <Link to="/all-problems" className="hover:text-[#b89e37] transition">Problems</Link>
+          <Link to="/submit" className="hover:text-[#b89e37] transition">Raise Problem</Link>
+          <Link to="/contact-us" className="hover:text-[#b89e37] transition">Contact</Link>
         </div>
 
-        {/* Right Side */}
+        {/* Right Side Actions */}
         <div className="flex items-center gap-3 md:gap-4">
           <HamburgerMenu />
 
-          {/* Right-side actions - hidden on mobile */}
           <div className="hidden lg:flex items-center gap-4 xl:gap-6 uppercase">
             {token && (
-              <Link
-                to="/notifications"
-                className="relative flex items-center hover:text-[#b89e37]"
-              >
-                <FaBell className="text-lg md:text-xl" />
-                {loading ? null : unreadCount > 0 ? (
-                  <span className="absolute -top-1 -right-2 text-xs bg-red-500 text-white rounded-full px-1">
+              <div className="relative">
+                <NotificationDropdown />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-2 -right-1 bg-red-600 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                     {unreadCount}
                   </span>
-                ) : null}
-              </Link>
+                )}
+              </div>
             )}
+
             <Link
               to="/all-community"
               className="bg-[#FFE26A] hover:bg-[#0C2218] text-[14px] md:text-[16px] text-black hover:text-white border border-[#FFE26A] font-medium py-1.5 px-3 md:py-2 md:px-4 transition"
             >
               Join Community
             </Link>
+
             <UserMenu token={token} logout={logout} />
           </div>
         </div>
