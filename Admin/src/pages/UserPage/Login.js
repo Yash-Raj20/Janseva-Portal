@@ -1,68 +1,159 @@
 import { useState } from "react";
+import axios from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { Mail, Lock } from "lucide-react";
+import { FcGoogle } from "react-icons/fc";
+import { FaFacebook } from "react-icons/fa";
+import { toast } from "react-hot-toast";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const Login = () => {
+  const [form, setForm] = useState({ email: "", password: "" });
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:5000/api/admin/adminlogin", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
 
-      const data = await res.json();
-      if (res.ok) {
-        if (data.token) {
-          login(data.token);
-          navigate("/dashboard");
-        } else {
-          alert("Login failed, no token received");
-        }
+    if (!form.email || !form.password) {
+      toast.error("Email and Password are required");
+      return;
+    }
+
+    try {
+      const res = await axios.post("/admin/adminlogin", form, {
+        withCredentials: true,
+      });
+      if (res.data && res.data.user) {
+        login(res.data.user);
+        toast.success("Login successful");
+        navigate("/dashboard");
       } else {
-        alert(data.message || "Login failed");
+        toast.error("Login failed: No user data received");
       }
     } catch (error) {
-      console.error("Login error: ", error);
-      alert("An error occurred during login.");
+      toast.error("Invalid credentials. Please try again.");
     }
   };
 
+  const handleGoogleLogin = () => {
+    toast("Google login feature coming soon!");
+  };
+
+  const handleFacebookLogin = () => {
+    toast("Facebook login feature coming soon!");
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded shadow-md w-80">
-        <h2 className="text-xl font-bold mb-4 text-center">Admin Login</h2>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border mb-2 rounded"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border mb-4 rounded"
-          required
-        />
-        <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded">
-          Login
-        </button>
-        <div className="text-center mt-4">
-          <a href="/adminregister" className="text-blue-600 hover:underline">
-            Don't have an account? Register
-          </a>
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f5f5] p-6 pt-20">
+      <div className="flex flex-col md:flex-row bg-white rounded-2xl shadow-xl max-w-5xl w-full overflow-hidden">
+        {/* Left Side Image */}
+        <div
+          className="md:w-1/2 bg-cover bg-center relative"
+          style={{
+            backgroundImage: "url('/assets/loginImg.jpg')",
+            minHeight: "500px",
+            maxHeight: "550px",
+          }}
+        >
+          <div className="absolute inset-0 bg-black bg-opacity-40 flex flex-col justify-center items-center p-10">
+            <img
+              src="./Logo/signatureWhite.svg"
+              alt="Underline"
+              className="mx-auto h-auto w-64 object-contain"
+            />
+            <p className="text-white text-lg max-w-md text-center drop-shadow">
+              Empowering citizens to raise their voices and build a better
+              future together.
+            </p>
+          </div>
         </div>
-      </form>
+
+        {/* Right Form Side */}
+        <div className="md:w-1/2 flex items-center justify-center p-10">
+          <div className="w-full max-w-md">
+            <h2 className="text-3xl font-bold text-[#0C2218] mb-6 text-center">
+              Welcome Back
+            </h2>
+
+            {/* Social Login */}
+            <div className="space-y-3 mb-6">
+              <button
+                onClick={handleGoogleLogin}
+                className="flex items-center justify-center w-full py-2 border rounded-lg hover:bg-gray-100 transition"
+              >
+                <FcGoogle size={22} className="mr-2" />
+                Login with Google
+              </button>
+              <button
+                onClick={handleFacebookLogin}
+                className="flex items-center justify-center w-full py-2 border rounded-lg text-blue-600 hover:bg-gray-100 transition"
+              >
+                <FaFacebook size={20} className="mr-2" />
+                Login with Facebook
+              </button>
+            </div>
+
+            <div className="text-center text-gray-400 mb-4">
+              — or login with email —
+            </div>
+
+            {/* Email Login */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="relative">
+                <Mail
+                  className="absolute left-4 top-3 text-gray-400"
+                  size={22}
+                />
+                <input
+                  type="email"
+                  placeholder="Email Address"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div className="relative">
+                <Lock
+                  className="absolute left-4 top-3 text-gray-400"
+                  size={22}
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
+                  value={form.password}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full bg-[#0C2218] text-white py-3 rounded-lg hover:bg-[#1b3c2a] transition duration-300 font-semibold"
+              >
+                Admin Login
+              </button>
+            </form>
+
+            <p className="mt-6 text-center text-sm text-gray-600">
+              Don’t have an account?{" "}
+              <Link
+                to="/admin-register"
+                className="text-[#b89e37] font-medium hover:underline"
+              >
+                Register now
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
+
+export default Login;

@@ -5,6 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaFacebook } from "react-icons/fa";
+import { toast } from "react-hot-toast"; 
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -13,23 +14,37 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.email || !form.password) {
+      toast.error("Email and Password are required");
+      return;
+    }
+
     try {
-      const res = await axios.post("/auth/login", form);
-      login(res.data.token);
-      navigate("/");
+      await axios.post("/auth/login", form, {
+        withCredentials: true,
+      });
+
+      const res = await axios.get("/auth/profile", { withCredentials: true });
+
+      if (res.data.user) {
+        login(res.data.user);
+        toast.success("Login successful");
+        navigate("/");
+      } else {
+        toast.error("Login failed: No user data received");
+      }
     } catch (error) {
-      alert("Invalid credentials. Please try again.");
+      toast.error("Invalid credentials. Please try again.");
     }
   };
 
   const handleGoogleLogin = () => {
-    alert("Google login feature coming soon!");
-    // Add actual OAuth handler here
+    toast("Google login feature coming soon!");
   };
 
   const handleFacebookLogin = () => {
-    alert("Facebook login feature coming soon!");
-    // Add actual OAuth handler here
+    toast("Facebook login feature coming soon!");
   };
 
   return (
@@ -39,8 +54,7 @@ const Login = () => {
         <div
           className="md:w-1/2 bg-cover bg-center relative"
           style={{
-            backgroundImage:
-              "url('/assets/loginImg.jpg')",
+            backgroundImage: "url('/assets/loginImg.jpg')",
             minHeight: "500px",
             maxHeight: "550px",
           }}
@@ -52,7 +66,8 @@ const Login = () => {
               className="mx-auto h-auto w-64 object-contain"
             />
             <p className="text-white text-lg max-w-md text-center drop-shadow">
-              Empowering citizens to raise their voices and build a better future together.
+              Empowering citizens to raise their voices and build a better
+              future together.
             </p>
           </div>
         </div>
@@ -82,12 +97,17 @@ const Login = () => {
               </button>
             </div>
 
-            <div className="text-center text-gray-400 mb-4">— or login with email —</div>
+            <div className="text-center text-gray-400 mb-4">
+              — or login with email —
+            </div>
 
             {/* Email Login */}
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="relative">
-                <Mail className="absolute left-4 top-3 text-gray-400" size={22} />
+                <Mail
+                  className="absolute left-4 top-3 text-gray-400"
+                  size={22}
+                />
                 <input
                   type="email"
                   placeholder="Email Address"
@@ -99,13 +119,18 @@ const Login = () => {
               </div>
 
               <div className="relative">
-                <Lock className="absolute left-4 top-3 text-gray-400" size={22} />
+                <Lock
+                  className="absolute left-4 top-3 text-gray-400"
+                  size={22}
+                />
                 <input
                   type="password"
                   placeholder="Password"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
                   value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                  onChange={(e) =>
+                    setForm({ ...form, password: e.target.value })
+                  }
                   required
                 />
               </div>
@@ -120,7 +145,10 @@ const Login = () => {
 
             <p className="mt-6 text-center text-sm text-gray-600">
               Don’t have an account?{" "}
-              <Link to="/register" className="text-[#b89e37] font-medium hover:underline">
+              <Link
+                to="/register"
+                className="text-[#b89e37] font-medium hover:underline"
+              >
                 Register now
               </Link>
             </p>

@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/WebPages/Home';
@@ -12,8 +12,7 @@ import Dashboard from './pages/UserDashboardPage/Dashboard';
 import AllProblems from './pages/ProblemPage/AllProblems';
 import AllCommunity from './pages/CommunityPage/AllCommunity';
 import Notifications from './pages/UserDashboardPage/Notifications';
-// import VolunteerDashboard from "./pages/VolunteerDashboard";
-import { AuthProvider } from './context/AuthContext';
+// import VolunteerDashboard from "./pages/VolunteerDashboard";s
 import SocketNotification from "./components/NotificationSection/SocketNotification";
 import { Toaster } from 'react-hot-toast';
 import Profile from './pages/UserDashboardPage/Profile';
@@ -25,10 +24,10 @@ function App() {
   const userId = localStorage.getItem('userId');
 
   return (
-    <Router>
-      <AuthProvider>
-      <Toaster position="top-right" reverseOrder={false} />
+    <>
+      <Toaster position="top-right" reverseOrder={false} autoClose={3000} />
         <Navbar />
+        {/* Pages Routes */}
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about-us" element={<AboutUs />} />
@@ -55,8 +54,7 @@ function App() {
 
         <Footer />
         {userId && <SocketNotification userId={userId} />}
-      </AuthProvider>
-    </Router>
+        </>
   );
 }
 

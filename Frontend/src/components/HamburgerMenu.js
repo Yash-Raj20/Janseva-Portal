@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { FaSignInAlt, FaUserPlus, FaUser, FaPowerOff } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
@@ -19,15 +20,20 @@ const useOutsideClick = (ref, onClose) => {
 };
 
 const HamburgerMenu = () => {
-  const { token, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const menuRef = useRef(null);
   const { notifications } = useNotifications();
   const unreadCount = notifications.length;
+  const { logout, user } = useAuth();
 
   useOutsideClick(menuRef, () => setOpen(false));
 
   const toggleMenu = () => setOpen((prev) => !prev);
+
+  const handleLogout = async () => {
+    await logout();
+    toast.success("Logged out successfully!");
+  };
 
   const mainMenuItems = [
     { label: "Home", link: "/" },
@@ -37,7 +43,7 @@ const HamburgerMenu = () => {
     { label: "Contact", link: "/contact-us" },
   ];
 
-  const authMenuItems = token
+  const authMenuItems = user
     ? [
         {
           label: "Dashboard",
@@ -49,8 +55,7 @@ const HamburgerMenu = () => {
           label: "Logout",
           icon: <FaPowerOff />,
           action: () => {
-            logout();
-            setOpen(false);
+            handleLogout();
           },
         },
       ]
@@ -74,8 +79,8 @@ const HamburgerMenu = () => {
       className="lg:hidden relative z-50 flex items-center gap-4"
       ref={menuRef}
     >
-      {/* ✅ Notification Bell Dropdown */}
-      {token && (
+      {/* Notification Bell */}
+      {user && (
         <div className="relative">
           <NotificationDropdown />
           {unreadCount > 0 && (
@@ -86,7 +91,7 @@ const HamburgerMenu = () => {
         </div>
       )}
 
-      {/* ☰ Hamburger Icon */}
+      {/* Hamburger Toggle */}
       <input
         type="checkbox"
         className="menu"
@@ -95,10 +100,9 @@ const HamburgerMenu = () => {
         aria-label="Toggle menu"
       />
 
-      {/* 📜 Dropdown Panel */}
+      {/* Dropdown Menu */}
       {open && (
         <div className="absolute top-16 right-0 bg-white shadow-xl rounded-lg w-52 sm:w-60 p-5 flex flex-col space-y-4 z-50">
-          {/* 🌐 Static Menu */}
           {mainMenuItems.map((item) => (
             <Link
               key={item.link}
@@ -110,7 +114,6 @@ const HamburgerMenu = () => {
             </Link>
           ))}
 
-          {/* 👤 Auth Menu */}
           {authMenuItems.map((item, index) =>
             item.link ? (
               <Link

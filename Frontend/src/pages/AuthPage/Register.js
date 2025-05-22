@@ -2,23 +2,36 @@ import { useState } from "react";
 import axios from "../../api/axios";
 import { useNavigate, Link } from "react-router-dom";
 import { Mail, Lock, Phone, MapPin, User } from "lucide-react";
+import { toast } from "react-hot-toast"; 
 
 const Register = () => {
-  const [form, setForm] = useState({
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     phone: "",
     location: "",
   });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await axios.post("/auth/register", form);
-    alert("Registered successfully!");
-    navigate("/login");
+    setLoading(true);
+    setError("");
+    try {
+      await axios.post("/auth/register", formData);
+      toast.success("Registered successfully!");
+      navigate("/login");
+    } catch (err) {
+      setError(
+        toast.error("Registration failed. Please try again.")
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,87 +68,74 @@ const Register = () => {
               Create an Account
             </h2>
 
+            {error && (
+              <div className="mb-4 text-red-600 font-semibold text-center">
+                {error}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name */}
               <div className="relative">
-                <User
-                  className="absolute left-4 top-3 text-gray-400"
-                  size={20}
-                />
+                <User className="absolute left-4 top-3 text-gray-400" size={20} />
                 <input
                   type="text"
                   placeholder="Full Name"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none"
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
               </div>
 
               {/* Email */}
               <div className="relative">
-                <Mail
-                  className="absolute left-4 top-3 text-gray-400"
-                  size={20}
-                />
+                <Mail className="absolute left-4 top-3 text-gray-400" size={20} />
                 <input
                   type="email"
                   placeholder="Email Address"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   required
                 />
               </div>
 
               {/* Password */}
               <div className="relative">
-                <Lock
-                  className="absolute left-4 top-3 text-gray-400"
-                  size={20}
-                />
+                <Lock className="absolute left-4 top-3 text-gray-400" size={20} />
                 <input
                   type="password"
                   placeholder="Password"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none"
-                  value={form.password}
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                 />
               </div>
 
               {/* Phone */}
               <div className="relative">
-                <Phone
-                  className="absolute left-4 top-3 text-gray-400"
-                  size={20}
-                />
+                <Phone className="absolute left-4 top-3 text-gray-400" size={20} />
                 <input
                   type="text"
                   placeholder="Phone Number"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   required
                 />
               </div>
 
               {/* Location */}
               <div className="relative">
-                <MapPin
-                  className="absolute left-4 top-3 text-gray-400"
-                  size={20}
-                />
+                <MapPin className="absolute left-4 top-3 text-gray-400" size={20} />
                 <input
                   type="text"
                   placeholder="Location"
                   className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#ffe26a] focus:outline-none"
-                  value={form.location}
-                  onChange={(e) =>
-                    setForm({ ...form, location: e.target.value })
-                  }
+                  value={formData.location}
+                  onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   required
                 />
               </div>
@@ -143,9 +143,14 @@ const Register = () => {
               {/* Button */}
               <button
                 type="submit"
-                className="w-full bg-[#0C2218] text-white py-3 rounded-lg hover:bg-[#1b3c2a] transition font-semibold"
+                disabled={loading}
+                className={`w-full py-3 rounded-lg font-semibold transition ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#0C2218] hover:bg-[#1b3c2a] text-white"
+                }`}
               >
-                Register Now
+                {loading ? "Registering..." : "Register Now"}
               </button>
             </form>
 

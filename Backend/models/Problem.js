@@ -8,14 +8,14 @@ const problemSchema = new mongoose.Schema(
     category: { type: String, required: true },
     urgency: { type: String, required: true },
     contact: { type: String, required: true },
-    image: { type: String }, // Optional image field
+    image: { type: String, required: true },
     status: {
       type: String,
       default: "Pending",
       enum: ["Pending","Process", "Resolved"],
     },
     createdAt: { type: Date, default: Date.now },
-    upvotes: [{ type: String, unique: true }],
+    upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     comments: [
       {

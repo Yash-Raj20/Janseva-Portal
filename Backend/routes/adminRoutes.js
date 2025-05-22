@@ -1,18 +1,20 @@
 import express from 'express';
 import Problem from '../models/Problem.js';
-import { protect, isAdmin } from '../middleware/adminMiddleware.js';
-import { loginAdmin, registerAdmin } from "../controllers/AdminController/adminController.js";
+import {adminMiddleware, isAdmin } from '../middleware/adminMiddleware.js';
+import { loginAdmin, logoutAdmin, registerAdmin } from "../controllers/AdminController/adminController.js";
 
 const router = express.Router();
 
 // Admin login and register routes
 router.post("/adminlogin", loginAdmin);
 router.post("/adminregister", registerAdmin);
+router.post("/logout", adminMiddleware, logoutAdmin);
+router.post("/profile", adminMiddleware, logoutAdmin);
 
 // Get all problems, only accessible by an admin
-router.get('/', protect, isAdmin, async (req, res) => {
+router.get('/', adminMiddleware, isAdmin, async (req, res) => {
   try {
-    const problems = await Problem.find().populate('userId', 'name email');
+    const problems = await Problem.find().populate('adminId', 'name email');
     res.json(problems);
   } catch (err) {
     res.status(500).json({ message: "Error fetching problems", error: err.message });
@@ -20,7 +22,7 @@ router.get('/', protect, isAdmin, async (req, res) => {
 });
 
 // Update problem status, only accessible by an admin
-router.put('/update-status/:id', protect, isAdmin, async (req, res) => {
+router.put('/update-status/:id', adminMiddleware, isAdmin, async (req, res) => {
   const { status } = req.body;
   try {
     const updatedProblem = await Problem.findByIdAndUpdate(req.params.id, { status }, { new: true });

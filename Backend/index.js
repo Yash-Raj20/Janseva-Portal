@@ -1,11 +1,25 @@
+// -----------------------------
+// Load Environment Variables
+// -----------------------------
+import dotenv from 'dotenv';
+dotenv.config();
+
+// -----------------------------
+// Built-in & Third-party Imports
+// -----------------------------
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
-import { Server } from 'socket.io'; 
+import cookieParser from 'cookie-parser';
+import { Server } from 'socket.io';
+import { fileURLToPath } from 'url'; // 🔥
+import { dirname } from 'path'; // 🔥
 
+// -----------------------------
+// Internal Module Imports
+// -----------------------------
 import connectDB from './config/db.js';
 import authRoutes from './routes/authRoutes.js';
 import problemRoutes from './routes/problemRoutes.js';
@@ -13,34 +27,45 @@ import adminRoutes from './routes/adminRoutes.js';
 import notificationRoutes from './routes/notificationRoute.js';
 import { createNotification } from './controllers/NotificationController/notifyController.js';
 
-dotenv.config();
-
-// Auto-create uploads folder
-const uploadsPath = path.join(process.cwd(), 'uploads');
+// -----------------------------
+// Create Uploads Directory if Missing
+// -----------------------------
+const uploadsPath = path.resolve('uploads');
 if (!fs.existsSync(uploadsPath)) {
-  fs.mkdirSync(uploadsPath);
-  console.log("✅ 'uploads' folder created");
+  fs.mkdirSync(uploadsPath, { recursive: true });
+  console.log('📁 Uploads folder created at:', uploadsPath);
 }
 
+// -----------------------------
+// App Initialization
+// -----------------------------
 const app = express();
 const server = http.createServer(app);
 
+// -----------------------------
 // Middleware
+// -----------------------------
 app.use(cors({
   origin: ["http://localhost:3000", "http://localhost:3001"],
-  credentials: true
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use('/uploads', express.static(uploadsPath));
 
-// Static file serving
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
-
-//Routes
-app.use('/api/admin', adminRoutes);
+// -----------------------------
+// API Routes
+// -----------------------------
 app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
+app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
 
+// -----------------------------
+// Socket.io Setup
+// -----------------------------
 const io = new Server(server, {
   cors: {
     origin: ["http://localhost:3000", "http://localhost:3001"],
@@ -51,21 +76,44 @@ const io = new Server(server, {
 
 export { io };
 
-// Socket.io event handling
 io.on('connection', (socket) => {
-  console.log('Socket connected', socket.id);
+  console.log(`✅ Socket connected: ${socket.id}`);
 
   socket.on('sendNotification', async ({ userId, message }) => {
-    await createNotification(userId, message);
-    socket.emit('newNotification', { userId, message });
+    try {
+      await createNotification(userId, message);
+      socket.emit('newNotification', { userId, message });
+    } catch (error) {
+      console.error('❌ Notification error:', error.message);
+    }
   });
 
   socket.on('disconnect', () => {
-    console.log('Socket disconnected:", socket.id');
+    console.log(`❌ Socket disconnected: ${socket.id}`);
   });
 });
 
+// -----------------------------
+// 🔥 Serve React Frontend (Production Build)
+// -----------------------------
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const frontendPath = path.join(__dirname, 'build');
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(frontendPath, 'index.html'));
+  });
+}
+
+// -----------------------------
+// Start Server
+// -----------------------------
+const PORT = process.env.PORT || 5000;
+
 connectDB();
 
-const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+});

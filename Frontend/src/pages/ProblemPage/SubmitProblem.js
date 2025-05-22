@@ -4,6 +4,7 @@ import { useAuth } from "../../context/AuthContext";
 import axios from "../../api/axios";
 import { MapPin, Megaphone, Users } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 const assets = [
   "/assets/img1.jpg",
@@ -13,8 +14,10 @@ const assets = [
 ];
 
 const SubmitProblem = () => {
-  const { token } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
+  const [image, setImage] = useState(null);
+  const [imageError, setImageError] = useState("");
 
   const [problem, setProblem] = useState({
     title: "",
@@ -23,22 +26,15 @@ const SubmitProblem = () => {
     category: "",
     urgency: "",
     contact: "",
-    image: null,
   });
 
   useEffect(() => {
-    if (!token) navigate("/login");
-  }, [token, navigate]);
-
-  const handleImageChange = (e) => {
-    if (e.target.files[0]) {
-      setProblem((prev) => ({ ...prev, image: e.target.files[0] }));
-    }
-  };
+    if (!user) navigate("/login");
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { title, description, location, category, urgency, contact, image } =
+    const { title, description, location, category, urgency, contact } =
       problem;
 
     if (
@@ -47,9 +43,15 @@ const SubmitProblem = () => {
       !location ||
       !category ||
       !urgency ||
-      !contact
+      !contact ||
+      !image
     ) {
-      alert("Please fill in all the required fields.");
+      toast.error("Please fill in all the required fields including image.");
+      return;
+    }
+
+    if (imageError) {
+      toast.error(imageError);
       return;
     }
 
@@ -60,22 +62,34 @@ const SubmitProblem = () => {
     formData.append("category", category);
     formData.append("urgency", urgency);
     formData.append("contact", contact);
-    if (image) {
-      formData.append("image", image);
-    }
+    formData.append("image", image);
 
     try {
-      await axios.post("http://localhost:5000/api/problems", formData, {
+      await axios.post("/problems/create", formData, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${user?.token}`,
         },
+        withCredentials: true,
       });
-      alert("Problem submitted successfully!");
+
+      toast.success("Problem submitted successfully!");
       navigate("/");
-    } catch (error) {
-      console.error("Problem submission failed", error);
-      alert("Failed to submit problem. Please try again.");
+    } catch (err) {
+      console.error("Error in create problem:", err);
+      toast.error("Problem submission failed.");
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setImageError("Your image is more than 10MB");
+        setImage(null);
+      } else {
+        setImageError("");
+        setImage(file);
+      }
     }
   };
 
@@ -99,7 +113,6 @@ const SubmitProblem = () => {
             Together we can fix local issues and shape a smarter future.
           </p>
 
-          {/* Photo Gallery */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {assets.map((src, i) => (
               <img
@@ -112,7 +125,6 @@ const SubmitProblem = () => {
             ))}
           </div>
 
-          {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center mt-8">
             <div className="bg-white shadow-md rounded-xl p-6">
               <Megaphone className="text-[#0C2218] w-8 h-8 mx-auto mb-2" />
@@ -131,7 +143,6 @@ const SubmitProblem = () => {
             </div>
           </div>
 
-          {/* Process Steps */}
           <div className="mt-12 bg-white rounded-xl shadow-md p-6">
             <h2 className="text-2xl font-bold text-[#0C2218] mb-6 text-center">
               How It Works
@@ -168,7 +179,6 @@ const SubmitProblem = () => {
           </div>
         </motion.div>
 
-        {/* Divider for mobile */}
         <hr className="block lg:hidden border-t my-5 border-gray-300" />
 
         {/* Right Section - Form */}
@@ -203,7 +213,7 @@ const SubmitProblem = () => {
                   id={id}
                   value={problem[id]}
                   onChange={(e) =>
-                    setProblem({ ...problem, [id]: e.target.value })
+                    setProblem((prev) => ({ ...prev, [id]: e.target.value }))
                   }
                   className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
                   required
@@ -223,7 +233,10 @@ const SubmitProblem = () => {
                 rows="4"
                 value={problem.description}
                 onChange={(e) =>
-                  setProblem({ ...problem, description: e.target.value })
+                  setProblem((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
                 }
                 className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
                 required
@@ -242,7 +255,10 @@ const SubmitProblem = () => {
                   id="category"
                   value={problem.category}
                   onChange={(e) =>
-                    setProblem({ ...problem, category: e.target.value })
+                    setProblem((prev) => ({
+                      ...prev,
+                      category: e.target.value,
+                    }))
                   }
                   className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
                   required
@@ -268,7 +284,10 @@ const SubmitProblem = () => {
                   id="urgency"
                   value={problem.urgency}
                   onChange={(e) =>
-                    setProblem({ ...problem, urgency: e.target.value })
+                    setProblem((prev) => ({
+                      ...prev,
+                      urgency: e.target.value,
+                    }))
                   }
                   className="w-full p-3 sm:p-4 text-sm sm:text-base border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
                   required
@@ -287,19 +306,17 @@ const SubmitProblem = () => {
                 htmlFor="image"
                 className="block font-medium text-gray-700 mb-1"
               >
-                Upload Image (Optional)
+                Upload Image
               </label>
               <input
                 type="file"
                 id="image"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="w-full p-2 border border-gray-300 rounded-xl cursor-pointer"
+                className="w-full p-3 text-sm border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#ffe26a] focus:outline-none transition"
               />
-              {problem.image && (
-                <p className="mt-2 text-sm text-green-600">
-                  Selected file: {problem.image.name}
-                </p>
+              {imageError && (
+                <p className="text-red-600 text-sm mt-1">{imageError}</p>
               )}
             </div>
 
@@ -309,6 +326,11 @@ const SubmitProblem = () => {
             >
               🚀 Submit Your Problem
             </button>
+
+            <p className="text-[#0C2218] text-base text-center sm:text-md">
+              Raise your problems my team will be work on it as soon as
+              possible.
+            </p>
           </form>
         </motion.div>
       </div>

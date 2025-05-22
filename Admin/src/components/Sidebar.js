@@ -9,7 +9,7 @@ const Sidebar = () => {
 
   const handleLogout = () => {
     logout();
-    navigate('/adminlogin'); 
+    navigate('/admin-login'); 
   };
 
   return (

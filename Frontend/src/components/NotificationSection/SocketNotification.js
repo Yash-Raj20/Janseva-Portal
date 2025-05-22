@@ -1,26 +1,26 @@
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { toast } from 'react-hot-toast';
-import { useAuth } from "../../context/AuthContext"; // assuming you have useAuth hook
+import { useAuth } from "../../context/AuthContext";
 
 const SocketNotification = () => {
-  const { token, userId } = useAuth(); // get from AuthContext
+  const { user } = useAuth();
   const socketRef = useRef(null);
 
   useEffect(() => {
-    if (!token || !userId) return; // don't connect if no login
+    if (!user || !user._id) return; 
 
     const socket = io('http://localhost:5000', {
-      auth: { token }, // you can pass token if needed
+      auth: { userId: user._id },
     });
 
     socketRef.current = socket;
 
-    socket.emit('join', userId); // join specific user room
+    socket.emit('join', user._id); 
 
     socket.on('newNotification', (data) => {
       console.log('New notification received:', data);
-      toast.success(data.message);
+      toast.success(data.message || "You have a new notification!");
     });
 
     return () => {
@@ -28,9 +28,9 @@ const SocketNotification = () => {
         socketRef.current.disconnect();
       }
     };
-  }, [token, userId]);
+  }, [user]);
 
-  return null; // no UI element
+  return null;
 };
 
 export default SocketNotification;

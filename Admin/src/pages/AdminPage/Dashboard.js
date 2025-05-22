@@ -3,7 +3,8 @@ import axios from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 
 const AdminProblems = () => {
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
+
   const [problems, setProblems] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,12 +13,17 @@ const AdminProblems = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!isAuthenticated) {
+      setLoading(false);
+      setProblems([]);
+      setFiltered([]);
+      return;
+    }
 
     const fetchProblems = async () => {
       try {
         const res = await axios.get("/problems", {
-          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         });
         setProblems(res.data);
         setFiltered(res.data);
@@ -30,7 +36,7 @@ const AdminProblems = () => {
     };
 
     fetchProblems();
-  }, [token]);
+  }, [isAuthenticated]);
 
   // Filters update reactively
   useEffect(() => {
@@ -42,7 +48,7 @@ const AdminProblems = () => {
   }, [categoryFilter, urgencyFilter, problems]);
 
   const handleStatusUpdate = async (id, updatedStatus) => {
-    if (!token) {
+    if (!isAuthenticated) {
       alert("You need to be logged in to update the status.");
       return;
     }
@@ -51,7 +57,7 @@ const AdminProblems = () => {
       const res = await axios.put(
         `/problems/${id}/status`,
         { status: updatedStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true }
       );
 
       if (res.status === 200) {

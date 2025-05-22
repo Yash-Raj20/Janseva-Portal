@@ -1,4 +1,5 @@
 // import { useRef, useEffect } from "react";
+import React from 'react';
 import "./Home.css";
 import MissionSection from "../../components/HomeComponent/MissionSection";
 import WhyChooseUs from "./../../components/HomeComponent/WhyChooseUs";
@@ -35,6 +36,7 @@ const Home = () => {
   //     video.removeEventListener("timeupdate", handleTimeUpdate);
   //   };
   // }, []);
+
 
   return (
     <div className="bg-[#F4FBF7] min-h-screen flex flex-col font-poppins">

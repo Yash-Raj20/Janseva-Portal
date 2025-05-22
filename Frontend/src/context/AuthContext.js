@@ -1,51 +1,70 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { createContext, useState, useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { createContext, useState, useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../api/axios";
+import CustomLoader from "../components/CustomLoader";
 
 const AuthContext = createContext();
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showInitialLoader, setShowInitialLoader] = useState(true);
   const navigate = useNavigate();
 
+
   useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken); // Sync token on mount
-      if (isTokenExpired(storedToken)) {
-        logout(); // Automatically log out if the token is expired
-      }
-    }
+    const timer = setTimeout(() => {
+      setShowInitialLoader(false);
+    }, 2000); 
+
+    return () => clearTimeout(timer);
   }, []);
 
-  // Check if the token has expired
-  const isTokenExpired = (userToken) => {
+  // ✅ 2. Fetch user
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await axios.get("/auth/profile", { withCredentials: true });
+        setUser(res.data.user);
+      } catch (err) {
+        if (err.response && (err.response.status === 401 || err.response.status === 404)) {
+          setUser(null);
+        } else {
+          console.error("Unexpected error fetching user:", err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
+  }, []);
+
+  const login = (userData) => {
+    setUser(userData);
+  };
+
+  const logout = async () => {
     try {
-      const decodedToken = jwtDecode(userToken);
-      return decodedToken.exp * 1000 < Date.now(); // JWT expiration is in seconds, so multiply by 1000
-    } catch (err) {
-      return true; // If decoding fails, treat it as expired
+      const res = await axios.post("/auth/logout", {}, { withCredentials: true });
+      if (res.status === 200) {
+        localStorage.removeItem("user");
+        setUser(null);
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const login = (userToken) => {
-    console.log('Saving token:', userToken); // Log token to ensure it's correct
-    setToken(userToken);
-    localStorage.setItem('token', userToken);
-    navigate('/');
-  };
-
-  const logout = () => {
-    setToken(null);
-    localStorage.removeItem('token');
-    navigate('/login'); // Redirect to login after logout (optional)
-  };
+  // ✅ Show loader while either initial or API loading is true
+  if (loading || showInitialLoader) {
+    return <CustomLoader />;
+  }
 
   return (
-    <AuthContext.Provider value={{ token, login, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

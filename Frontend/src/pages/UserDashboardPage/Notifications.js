@@ -3,16 +3,16 @@ import axios from "../../api/axios";
 import { useAuth } from "../../context/AuthContext";
 import { useNotifications } from "../../context/NotificationContext";
 import { useLocation } from "react-router-dom";
+import { toast } from "react-toastify";
 
 function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(null); // error message or null
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 10;
 
-  const { token } = useAuth();
+  const { user } = useAuth();
   const { markAsRead } = useNotifications();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -22,20 +22,23 @@ function NotificationsPage() {
 
   useEffect(() => {
     const fetchNotifications = async () => {
+      if (!user) return;
       try {
-        const res = await axios.get("/notifications", {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await axios.get("/notifications/unread", {
+          withCredentials: true,
         });
         setNotifications(res.data);
+        setError(null);
       } catch (err) {
-        setError("Failed to fetch notifications.");
-      } finally {
-        setLoading(false);
+        toast.error(
+          "Failed to load your notifications. Please try again later."
+        );
+        setError("Failed to load your notifications.");
       }
     };
 
-    if (token) fetchNotifications();
-  }, [token]);
+    fetchNotifications();
+  }, [user]);
 
   useEffect(() => {
     if (highlightId && notificationRefs.current[highlightId]) {
@@ -50,10 +53,14 @@ function NotificationsPage() {
   }, [highlightId, notifications]);
 
   const handleMarkAsRead = async (id) => {
-    await markAsRead(id);
-    setNotifications((prev) =>
-      prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-    );
+    try {
+      await markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      );
+    } catch {
+      toast.error("Failed to mark notification as read. Please try again.");
+    }
   };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -61,11 +68,9 @@ function NotificationsPage() {
   const currentNotifications = notifications.slice(startIndex, endIndex);
   const totalPages = Math.ceil(notifications.length / itemsPerPage);
 
-  if (loading) return <div className="text-center">Loading...</div>;
-
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-bold mb-6 text-[#0C2218]">🔔 Notifications</h2>
+    <div className="p-6 min-h-screen bg-gradient-to-br from-gray-100 to-white">
+      <h2 className="text-2xl font-bold mb-6 text-[#0C2218] pb-3 border-b-2">🔔 Notifications</h2>
       {error && <div className="text-red-500 mb-4">{error}</div>}
 
       <div className="flex flex-col gap-4">
