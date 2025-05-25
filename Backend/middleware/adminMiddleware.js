@@ -1,53 +1,41 @@
-import jwt from 'jsonwebtoken';
-import Admin from '../models/Admin.js';
+import jwt from "jsonwebtoken";
+import Admin from "../models/Admin.js";
 
 export const adminMiddleware = async (req, res, next) => {
   try {
     const token = req.cookies?.token;
 
     if (!token || token === "null" || token.trim() === "") {
-      return res
-        .status(401)
-        .json({ error: "Access denied. No token provided in cookies." });
+      return res.status(401).json({ error: "Access denied. No token provided in cookies." });
     }
 
-    // Decode token
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Extract user ID safely
-    const adminId = decoded.id || decoded._id || decoded.userId;
+    // Check role from token payload (assuming token has a 'role' field)
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ error: "Access denied: User is not an admin." });
+    }
+
+    // Extract adminId safely (assuming id or _id or adminId)
+    const adminId = decoded.id || decoded._id || decoded.adminId;
     if (!adminId) {
-      return res
-        .status(401)
-        .json({ error: "Invalid token payload: No user ID found." });
+      return res.status(401).json({ error: "Invalid token: No Admin ID found." });
     }
 
-    // Fetch user
-    const admin = await Admin.findById(userId).select("-password");
+    // Find Admin in DB, exclude password
+    const admin = await Admin.findById(adminId).select("-password");
     if (!admin) {
-      return res.status(404).json({ error: "User not found." });
+      return res.status(404).json({ error: "Admin not found." });
     }
 
-    // Attach to request object
+    // Attach admin data to req
     req.admin = admin;
     req.adminId = admin._id;
 
     next();
   } catch (err) {
-    console.error("❌ JWT verification error:", err.message);
+    console.error("❌ Admin JWT verification error:", err.message);
     return res.status(401).json({ error: "Token invalid or expired." });
   }
 };
-
-// Middleware to check if the user is an admin
-export const isAdmin = async (req, res, next) => {
-  try {
-    // Assuming protect middleware already adds req.user
-    const admin = await Admin.findById(req.user._id);
-    if (!admin) return res.status(403).json({ message: 'Access denied: Not an admin' });
-    next();
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
-  }
-};
-

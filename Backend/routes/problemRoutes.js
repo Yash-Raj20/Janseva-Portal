@@ -10,6 +10,7 @@ import {
   comment,
 } from "../controllers/ProblemController/problemController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
+import { adminMiddleware } from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
@@ -33,8 +34,8 @@ router.post(
 );
 
 router.get("/", getAllProblems);
-router.put("/:id/status", authMiddleware, updateStatus);
-router.post("/upvote/:id", authMiddleware, upvote);
+router.put("/:id/status", adminMiddleware, updateStatus);
+router.put("/upvote/:id", authMiddleware, upvote);
 router.get("/top", topVoted);
 router.post("/comment/:id", authMiddleware, comment);
 

@@ -1,8 +1,10 @@
+// 📦 Imports
 import jwt from "jsonwebtoken";
 import User from "../../models/User.js";
 import Problem from "../../models/Problem.js";
 import Notification from "../../models/Notification.js";
 import validator from "validator";
+import bcrypt from "bcryptjs";
 
 // Helper: Generate JWT token
 const generateToken = (user) => {
@@ -10,6 +12,7 @@ const generateToken = (user) => {
     _id: user._id,
     email: user.email,
     name: user.name,
+    role: user.role || "user",
   };
 
   if (!process.env.JWT_SECRET) {
@@ -19,7 +22,7 @@ const generateToken = (user) => {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" });
 };
 
-// Register User
+// 🧑‍💻 Register User
 export const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, location } = req.body;
@@ -28,18 +31,26 @@ export const registerUser = async (req, res) => {
     if (!name || !email || !password || !phone || !location) {
       return res
         .status(400)
-        .json({ error: "Name, email, and password are required" });
+        .json({ error: "Name, email, password, phone, and location are required" });
     }
     if (!validator.isEmail(email)) {
       return res.status(400).json({ error: "Invalid email format" });
     }
 
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
     if (existingUser) {
       return res.status(409).json({ error: "Email already registered" });
     }
 
-    const user = new User({ name, email, password, phone, location });
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = new User({
+      name,
+      email: email.toLowerCase(),
+      password: hashedPassword,
+      phone,
+      location,
+    });
     await user.save();
 
     res.status(201).json({ message: "User registered successfully" });
@@ -51,7 +62,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
-// Login User with Cookie
+// 🗝️ Login User with Cookie
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -60,9 +71,13 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
 
-    if (!user || !(await user.comparePassword(password))) {
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
@@ -72,13 +87,13 @@ export const loginUser = async (req, res) => {
       .cookie("token", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "Strict",
+        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
         maxAge: 24 * 60 * 60 * 1000, // 1 day
       })
       .status(200)
       .json({
-        user: { email, name: user.name },
-        message: "Login successfull",
+        user: { _id: user._id, email: user.email, name: user.name },
+        message: "Login successful",
       });
   } catch (err) {
     console.error("Login error:", err.message);
@@ -86,44 +101,49 @@ export const loginUser = async (req, res) => {
   }
 };
 
-// Logout (Clear cookie)
+// 🚪 Logout User
 export const logoutUser = (req, res) => {
   res
     .clearCookie("token", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "Strict",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
     })
     .status(200)
     .json({ message: "Logged out successfully" });
 };
 
-// Get Profile Info
+// 👤 User: View own profile with problems & notifications
 export const profile = async (req, res) => {
   try {
-    const userId = req.user._id || req.user.id;
+    const userId = req.user?._id || req.userId; // depends on your auth middleware
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: No userId found" });
+    }
 
     const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const problems = await Problem.find({ userId }).sort({ createdAt: -1 });
-    const notifications = await Notification.find({ user: userId }).sort({
-      createdAt: -1,
-    });
+    const problems = await Problem.find({ user: userId }).sort({ createdAt: -1 });
+    const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
 
     res.status(200).json({
       user: {
+        _id: user._id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        location: user.location,
         createdAt: user.createdAt,
       },
       problems,
       notifications,
     });
-  } catch (error) {
-    console.error("Error in profile route:", error.message);
+  } catch (err) {
+    console.error("Error in profile route:", err.message);
     res.status(500).json({ message: "Server Error" });
   }
 };

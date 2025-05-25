@@ -5,30 +5,34 @@ const authMiddleware = async (req, res, next) => {
   try {
     const token = req.cookies?.token;
 
-    if (!token || token === "null" || token.trim() === "") {
-      return res
-        .status(401)
-        .json({ error: "Access denied. No token provided in cookies." });
+    if (!token || typeof token !== "string" || token === "null" || token.trim() === "") {
+      return res.status(401).json({ error: "Access denied. No token provided in cookies." });
     }
 
-    // Decode token
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET not configured in environment");
+    }
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Extract user ID safely
-    const userId = decoded.id || decoded._id || decoded.userId;
-    if (!userId) {
-      return res
-        .status(401)
-        .json({ error: "Invalid token payload: No user ID found." });
+    console.log(`User Middleware: ${req.method} ${req.originalUrl}`);
+
+    // Check role from token payload (assuming token has a 'role' field)
+    if (decoded.role !== "user") {
+      return res.status(403).json({ error: "Access denied: User is not an admin." });
     }
 
-    // Fetch user
+
+    const userId = decoded.id || decoded._id || decoded.userId;
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid token payload: No user ID found." });
+    }
+
     const user = await User.findById(userId).select("-password");
     if (!user) {
       return res.status(404).json({ error: "User not found." });
     }
 
-    // Attach to request object
     req.user = user;
     req.userId = user._id;
 
