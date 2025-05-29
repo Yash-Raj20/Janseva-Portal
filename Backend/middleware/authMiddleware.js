@@ -1,31 +1,23 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
-const authMiddleware = async (req, res, next) => {
+export const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.cookies?.token;
+    const token = req.cookies?.userToken; // 🔥 Alag cookie
 
-    if (!token || typeof token !== "string" || token === "null" || token.trim() === "") {
+    if (!token || token === "null" || token.trim() === "") {
       return res.status(401).json({ error: "Access denied. No token provided in cookies." });
-    }
-
-    if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET not configured in environment");
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    console.log(`User Middleware: ${req.method} ${req.originalUrl}`);
-
-    // Check role from token payload (assuming token has a 'role' field)
     if (decoded.role !== "user") {
-      return res.status(403).json({ error: "Access denied: User is not an admin." });
+      return res.status(403).json({ error: "Access denied: Not a user." });
     }
-
 
     const userId = decoded.id || decoded._id || decoded.userId;
     if (!userId) {
-      return res.status(401).json({ error: "Invalid token payload: No user ID found." });
+      return res.status(401).json({ error: "Invalid token: No User ID found." });
     }
 
     const user = await User.findById(userId).select("-password");
@@ -38,9 +30,10 @@ const authMiddleware = async (req, res, next) => {
 
     next();
   } catch (err) {
-    console.error("❌ JWT verification error:", err.message);
+    console.error("❌ User JWT verification error:", err.message);
     return res.status(401).json({ error: "Token invalid or expired." });
   }
 };
+
 
 export default authMiddleware;

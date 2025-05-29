@@ -62,7 +62,7 @@ export const UserAuthProvider = ({ children }) => {
     try {
       await axios.post("/auth/logout", {}, { withCredentials: true });
       setUser(null);
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error.message);
     }

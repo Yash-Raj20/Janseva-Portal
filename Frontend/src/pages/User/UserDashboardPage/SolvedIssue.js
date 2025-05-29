@@ -14,7 +14,6 @@ export default function SolvedIssues() {
     axios
       .get("/auth/profile", {
         withCredentials: true,
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       })
       .then((res) => {
         const all = res.data.problems || [];

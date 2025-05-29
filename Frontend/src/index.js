@@ -9,7 +9,6 @@ import { AdminAuthProvider } from "./context/Admin/AuthContext";
 import { NotificationProvider } from "./context/User/NotificationContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
     <Router>
       <UserAuthProvider>
         <AdminAuthProvider>
@@ -19,5 +18,4 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         </AdminAuthProvider>
       </UserAuthProvider>
     </Router>
-  </React.StrictMode>
 );

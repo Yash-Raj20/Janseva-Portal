@@ -14,8 +14,8 @@ import fs from 'fs';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import { Server } from 'socket.io';
-import { fileURLToPath } from 'url'; // 🔥
-import { dirname } from 'path'; // 🔥
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
 // -----------------------------
 // Internal Module Imports
@@ -33,7 +33,6 @@ import { createNotification } from './controllers/NotificationController/notifyC
 const uploadsPath = path.resolve('uploads');
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
-  console.log('📁 Uploads folder created at:', uploadsPath);
 }
 
 // -----------------------------
@@ -46,7 +45,7 @@ const server = http.createServer(app);
 // Middleware
 // -----------------------------
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:3001"],
+  origin: ["http://localhost:3000"],
   credentials: true,
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -68,8 +67,8 @@ app.use('/api/notifications', notificationRoutes);
 // -----------------------------
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "http://localhost:3001"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    origin: ["http://localhost:3000"],
+    methods: ["GET", "POST"],
     credentials: true
   }
 });

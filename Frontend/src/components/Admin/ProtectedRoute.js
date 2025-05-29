@@ -1,7 +1,7 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAdminAuth } from "../../context/Admin/AuthContext";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ allowedRoles }) => {
   const { admin } = useAdminAuth();
 
 
@@ -9,7 +9,11 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/admin-login" replace />;
   }
 
-  return children;
+  if (admin.role !== allowedRoles) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

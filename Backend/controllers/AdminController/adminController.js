@@ -46,6 +46,7 @@ export const registerAdmin = async (req, res) => {
       name,
       email: email.toLowerCase(),
       password: hashedPassword,
+      role: "admin",
     });
     await admin.save();
 
@@ -78,7 +79,7 @@ export const loginAdmin = async (req, res) => {
     const token = generateToken(admin);
 
     res
-      .cookie("token", token, {
+      .cookie("adminToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -98,7 +99,7 @@ export const loginAdmin = async (req, res) => {
 // 🚪 Logout Admin
 export const logoutAdmin = (req, res) => {
   res
-    .clearCookie("token", {
+    .clearCookie("adminToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -126,6 +127,7 @@ export const adminProfile = async (req, res) => {
         _id: admin._id,
         name: admin.name,
         email: admin.email,
+        role: admin.role,
         createdAt: admin.createdAt,
       },
     });

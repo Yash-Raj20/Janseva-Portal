@@ -76,7 +76,7 @@ export const loginUser = async (req, res) => {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(req.body.password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
@@ -84,7 +84,7 @@ export const loginUser = async (req, res) => {
     const token = generateToken(user);
 
     res
-      .cookie("token", token, {
+      .cookie("userToken", token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -92,7 +92,7 @@ export const loginUser = async (req, res) => {
       })
       .status(200)
       .json({
-        user: { _id: user._id, email: user.email, name: user.name },
+        user: { _id: user._id, email: user.email, name: user.name, },
         message: "Login successful",
       });
   } catch (err) {
@@ -104,7 +104,7 @@ export const loginUser = async (req, res) => {
 // 🚪 Logout User
 export const logoutUser = (req, res) => {
   res
-    .clearCookie("token", {
+    .clearCookie("userToken", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
@@ -116,7 +116,7 @@ export const logoutUser = (req, res) => {
 // 👤 User: View own profile with problems & notifications
 export const profile = async (req, res) => {
   try {
-    const userId = req.user?._id || req.userId; // depends on your auth middleware
+    const userId = req.user?._id || req.userId;
 
     if (!userId) {
       return res.status(401).json({ message: "Unauthorized: No userId found" });
@@ -127,7 +127,7 @@ export const profile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const problems = await Problem.find({ user: userId }).sort({ createdAt: -1 });
+    const problems = await Problem.find({ userId }).sort({ createdAt: -1 });
     const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -137,6 +137,7 @@ export const profile = async (req, res) => {
         email: user.email,
         phone: user.phone,
         location: user.location,
+        role: user.role,
         createdAt: user.createdAt,
       },
       problems,

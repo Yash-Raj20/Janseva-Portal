@@ -17,7 +17,7 @@ const Sidebar = () => {
       <h2 className="text-2xl font-bold mb-10">Admin Panel</h2>
       <ul className="space-y-6 flex-grow">
         <li>
-          <Link to="/dashboard" className="flex items-center gap-2 hover:text-yellow-400">
+          <Link to="/admin-dashboard" className="flex items-center gap-2 hover:text-yellow-400">
             <FaTachometerAlt /> Dashboard
           </Link>
         </li>

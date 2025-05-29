@@ -17,7 +17,7 @@ const AdminProblems = () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await axios.get("/problems", { withCredentials: true });
+        const res = await axios.get('/problems', { withCredentials: true });
         if (res.data && Array.isArray(res.data)) {
           setProblems(res.data);
           setFiltered(res.data);

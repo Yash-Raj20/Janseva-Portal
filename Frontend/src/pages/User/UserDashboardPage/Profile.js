@@ -103,6 +103,12 @@ export default function Profile() {
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
         <StatCard
           title="Issues Raised"
+          count={problems.length}
+          icon={<FaTasks />}
+          color="bg-gray-200"
+        />
+        <StatCard
+          title="Issues Pending"
           count={pendingCount}
           icon={<FaTasks />}
           color="bg-yellow-100"

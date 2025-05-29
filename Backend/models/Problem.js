@@ -12,7 +12,7 @@ const problemSchema = new mongoose.Schema(
     status: {
       type: String,
       default: "Pending",
-      enum: ["Pending","Process", "Resolved"],
+      enum: ["Pending", "Process", "Resolved"],
     },
     createdAt: { type: Date, default: Date.now },
     upvotes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
@@ -27,6 +27,5 @@ const problemSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
 
 export default mongoose.model("Problem", problemSchema);

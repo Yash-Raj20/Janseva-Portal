@@ -20,4 +20,13 @@
     background-position: center;
   }
 
+  /* For the scrollable filterbar in the AllProblems Page */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  display: none;
+}
+
   
