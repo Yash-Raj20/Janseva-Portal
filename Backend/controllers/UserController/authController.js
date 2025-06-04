@@ -1,12 +1,14 @@
 // 📦 Imports
 import jwt from "jsonwebtoken";
+import bcrypt from "bcryptjs";
+import validator from "validator";
+import geoip from "geoip-lite";
 import User from "../../models/User.js";
 import Problem from "../../models/Problem.js";
 import Notification from "../../models/Notification.js";
-import validator from "validator";
-import bcrypt from "bcryptjs";
+import cloudinary from "../../config/cloudinary.js";
 
-// Helper: Generate JWT token
+// 🔑 Generate JWT Token
 const generateToken = (user) => {
   const payload = {
     _id: user._id,
@@ -27,12 +29,10 @@ export const registerUser = async (req, res) => {
   try {
     const { name, email, password, phone, location } = req.body;
 
-    // Basic validation
     if (!name || !email || !password || !phone || !location) {
-      return res
-        .status(400)
-        .json({ error: "Name, email, password, phone, and location are required" });
+      return res.status(400).json({ error: "All fields are required" });
     }
+
     if (!validator.isEmail(email)) {
       return res.status(400).json({ error: "Invalid email format" });
     }
@@ -43,7 +43,6 @@ export const registerUser = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const user = new User({
       name,
       email: email.toLowerCase(),
@@ -56,9 +55,7 @@ export const registerUser = async (req, res) => {
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
     console.error("Registration error:", err.message);
-    res
-      .status(500)
-      .json({ error: "Registration failed. Please try again later." });
+    res.status(500).json({ error: "Registration failed. Please try again." });
   }
 };
 
@@ -66,35 +63,53 @@ export const registerUser = async (req, res) => {
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
 
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: "Invalid email or password" });
     }
 
-    const isMatch = await bcrypt.compare(req.body.password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ error: "Invalid email or password" });
+    const getClientIP = (req) => {
+      const forwarded = req.headers["x-forwarded-for"];
+      return forwarded ? forwarded.split(",")[0].trim() : req.socket?.remoteAddress;
+    };
+
+    const userAgent = req.headers["user-agent"] || "Unknown Device";
+    const ip = getClientIP(req);
+    let location = "Unknown Location";
+
+    if (ip && !["::1", "127.0.0.1", "localhost"].includes(ip)) {
+      const geo = geoip.lookup(ip);
+      if (geo) {
+        location = `${geo.city || "Unknown City"}, ${geo.country || "Unknown Country"}`;
+      }
+    } else {
+      location = "Localhost / Unknown";
     }
+
+    user.loginActivity = user.loginActivity || [];
+    user.loginActivity.push({ device: userAgent, location, timestamp: new Date() });
+    if (user.loginActivity.length > 3) {
+      user.loginActivity = user.loginActivity.slice(-3);
+    }
+    await user.save();
 
     const token = generateToken(user);
 
-    res
-      .cookie("userToken", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
-      })
-      .status(200)
-      .json({
-        user: { _id: user._id, email: user.email, name: user.name, },
-        message: "Login successful",
-      });
+    res.cookie("userToken", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 24 * 60 * 60 * 1000, // 1 day
+    });
+
+    res.status(200).json({
+      user: { _id: user._id, email: user.email, name: user.name },
+      message: "Login successful",
+    });
   } catch (err) {
     console.error("Login error:", err.message);
     res.status(500).json({ error: "Login failed. Please try again later." });
@@ -113,13 +128,12 @@ export const logoutUser = (req, res) => {
     .json({ message: "Logged out successfully" });
 };
 
-// 👤 User: View own profile with problems & notifications
+// 👤 Get Profile with Problems & Notifications
 export const profile = async (req, res) => {
   try {
     const userId = req.user?._id || req.userId;
-
     if (!userId) {
-      return res.status(401).json({ message: "Unauthorized: No userId found" });
+      return res.status(401).json({ message: "Unauthorized" });
     }
 
     const user = await User.findById(userId).select("-password");
@@ -127,8 +141,10 @@ export const profile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const problems = await Problem.find({ userId }).sort({ createdAt: -1 });
-    const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
+    const [problems, notifications] = await Promise.all([
+      Problem.find({ userId }).sort({ createdAt: -1 }),
+      Notification.find({ user: userId }).sort({ createdAt: -1 }),
+    ]);
 
     res.status(200).json({
       user: {
@@ -137,14 +153,67 @@ export const profile = async (req, res) => {
         email: user.email,
         phone: user.phone,
         location: user.location,
+        bio: user.bio,
+        gender: user.gender,
+        dob: user.dob,
         role: user.role,
+        profileImage: user.profileImage,
         createdAt: user.createdAt,
+        loginActivity: user.loginActivity || [],
       },
       problems,
       notifications,
     });
   } catch (err) {
-    console.error("Error in profile route:", err.message);
-    res.status(500).json({ message: "Server Error" });
+    console.error("Profile error:", err.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
+// ✏️ Update Profile
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user?._id || req.userId;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { name, phone, location, bio, dob, gender } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (name) user.name = name;
+    if (phone) user.phone = phone;
+    if (location) user.location = location;
+    if (bio) user.bio = bio;
+    if (dob) user.dob = dob;
+    if (gender) user.gender = gender.toLowerCase();
+
+    if (req.file) {
+      if (user.profileImagePublicId) {
+        await cloudinary.uploader.destroy(user.profileImagePublicId);
+      }
+
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "profileImages",
+      });
+
+      user.profileImage = result.secure_url;
+      user.profileImagePublicId = result.public_id;
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      profileImage: user.profileImage,
+      user,
+    });
+  } catch (err) {
+    console.error("Update profile error:", err.message);
+    res.status(500).json({ message: "Failed to update profile" });
+  }
+};
+

@@ -6,7 +6,6 @@ import {
   getAllProblems,
   updateStatus,
   upvote,
-  topVoted,
   comment,
 } from "../controllers/ProblemController/problemController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
@@ -35,8 +34,7 @@ router.post(
 
 router.get("/", getAllProblems);
 router.put("/:id/status", adminMiddleware, updateStatus);
-router.put("/upvote/:id", authMiddleware, upvote);
-router.get("/top", topVoted);
-router.post("/comment/:id", authMiddleware, comment);
+router.put("/:id/upvote", authMiddleware, upvote);
+router.post("/:id/comment", authMiddleware, comment);
 
 export default router;

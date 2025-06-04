@@ -7,6 +7,7 @@ import {
   FaLinkedinIn,
   FaGithub,
 } from "react-icons/fa";
+import Tooltip from "../Tooltip";
 
 const Footer = () => {
   return (
@@ -18,11 +19,31 @@ const Footer = () => {
             Get connected with us on social networks:
           </p>
           <div className="flex gap-4 text-xl flex-wrap justify-center">
-            <a href="#"><FaFacebookF className="hover:text-blue-800" /></a>
-            <a href="#"><FaTwitter className="hover:text-lime-600" /></a>
-            <a href="#"><FaInstagram className="hover:text-pink-600" /></a>
-            <a href="#"><FaLinkedinIn className="hover:text-blue-600" /></a>
-            <a href="#"><FaGithub className="hover:text-gray-600" /></a>
+            <Tooltip text="Facebook">
+              <a href="#">
+                <FaFacebookF className="hover:text-blue-800" />
+              </a>
+            </Tooltip>
+            <Tooltip text="Twitter">
+              <a href="#">
+                <FaTwitter className="hover:text-lime-600" />
+              </a>
+            </Tooltip>
+            <Tooltip text="Instagram">
+              <a href="#">
+                <FaInstagram className="hover:text-pink-600" />
+              </a>
+            </Tooltip>
+            <Tooltip text="LinkedIn">
+              <a href="#">
+                <FaLinkedinIn className="hover:text-blue-600" />
+              </a>
+            </Tooltip>
+            <Tooltip text="GitHub">
+              <a href="#">
+                <FaGithub className="hover:text-gray-600" />
+              </a>
+            </Tooltip>
           </div>
         </div>
 
@@ -39,8 +60,8 @@ const Footer = () => {
             <p className="leading-relaxed text-gray-700">
               A vision to transform India into a fully developed nation by its
               100th year of independence. Focused on sustainability, innovation,
-              and inclusive growth, Viksit Bharat is building a smarter and greener
-              future for all.
+              and inclusive growth, Viksit Bharat is building a smarter and
+              greener future for all.
             </p>
           </div>
 
@@ -48,10 +69,26 @@ const Footer = () => {
           <div className="text-center sm:text-left order-3 md:order-2 lg:order-2">
             <h6 className="uppercase font-bold mb-4">Our Initiatives</h6>
             <ul className="space-y-2 text-gray-700">
-              <li><a href="#" className="hover:text-[#b89e37] transition-all">Smart Cities</a></li>
-              <li><a href="#" className="hover:text-[#b89e37] transition-all">Digital India</a></li>
-              <li><a href="#" className="hover:text-[#b89e37] transition-all">Green Growth</a></li>
-              <li><a href="#" className="hover:text-[#b89e37] transition-all">Youth Empowerment</a></li>
+              <li>
+                <a href="#" className="hover:text-[#b89e37] transition-all">
+                  Smart Cities
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#b89e37] transition-all">
+                  Digital India
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#b89e37] transition-all">
+                  Green Growth
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#b89e37] transition-all">
+                  Youth Empowerment
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -59,10 +96,26 @@ const Footer = () => {
           <div className="text-center sm:text-left order-4 md:order-3 lg:order-3">
             <h6 className="uppercase font-bold mb-4">Useful Links</h6>
             <ul className="space-y-2 text-gray-700">
-              <li><a href="/about-us" className="hover:text-[#b89e37]">About Us</a></li>
-              <li><a href="/contact-us" className="hover:text-[#b89e37]">Contact Us</a></li>
-              <li><a href="#" className="hover:text-[#b89e37]">Contribute</a></li>
-              <li><a href="#" className="hover:text-[#b89e37]">Help Center</a></li>
+              <li>
+                <a href="/about-us" className="hover:text-[#b89e37]">
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a href="/contact-us" className="hover:text-[#b89e37]">
+                  Contact Us
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#b89e37]">
+                  Contribute
+                </a>
+              </li>
+              <li>
+                <a href="#" className="hover:text-[#b89e37]">
+                  Help Center
+                </a>
+              </li>
             </ul>
           </div>
 
@@ -80,7 +133,8 @@ const Footer = () => {
 
         {/* Footer Bottom */}
         <div className="text-center mt-10 py-4 border-t border-gray-200 text-xs sm:text-sm">
-          © {new Date().getFullYear()} <strong>JanSeva Portal</strong> — Smart & Sustainable India | All rights reserved.
+          © {new Date().getFullYear()} <strong>JanSeva Portal</strong> — Smart &
+          Sustainable India | All rights reserved.
         </div>
       </div>
     </footer>

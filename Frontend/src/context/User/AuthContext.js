@@ -1,6 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "../../api/User/axios"; 
+import axios from "../../api/User/axios";
 
 const AuthContext = createContext();
 
@@ -32,6 +32,27 @@ export const UserAuthProvider = ({ children }) => {
 
     fetchUser();
   }, []);
+
+  const updateProfile = async (formData) => {
+    try {
+      const res = await axios.put("/auth/profile", formData, {
+        withCredentials: true,
+      });
+
+      if (res.data.user) {
+        setUser(res.data.user);
+        return { success: true, message: res.data.message };
+      } else {
+        return { success: false, message: "Profile update failed" };
+      }
+    } catch (error) {
+      console.error("Profile update error:", error.message);
+      return {
+        success: false,
+        message: error.response?.data?.message || "Update failed",
+      };
+    }
+  };
 
   const login = async (credentials) => {
     try {
@@ -68,9 +89,8 @@ export const UserAuthProvider = ({ children }) => {
     }
   };
 
-
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, updateProfile, loading }}>
       {children}
     </AuthContext.Provider>
   );

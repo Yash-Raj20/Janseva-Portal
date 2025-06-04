@@ -31,7 +31,7 @@ const steps = [
 
 export default function WorkStep () {
   return (
-    <section className="py-20 bg-[#f3f9f6] px-4 sm:px-6 lg:px-16 text-center">
+    <section className="py-16 bg-[#f3f9f6] px-4 sm:px-6 lg:px-16 text-center">
       <h2 className="text-2xl sm:text-3xl font-bold text-[#0C2218]">How It Works</h2>
       <img
           src="./Logo/signature.svg"

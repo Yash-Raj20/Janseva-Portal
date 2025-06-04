@@ -14,7 +14,7 @@ function AllProblems() {
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedUrgency, setSelectedUrgency] = useState("");
-  const [selectedPopular, setSelectedPopular] = useState("");
+  const [selectedMostUpvotes, setSelectedMostUpvotes] = useState("");
 
   // Fetch Problems
   useEffect(() => {
@@ -54,8 +54,28 @@ function AllProblems() {
     setSelectedDistrict("");
     setSelectedCategory("");
     setSelectedUrgency("");
-    setSelectedPopular("");
+    setSelectedMostUpvotes("");
   };
+
+  // Filtered & Sorted Problems
+  const filteredProblems = problems.filter((problem) => {
+    const matchesCategory = selectedCategory ? problem.category === selectedCategory : true;
+    const matchesUrgency = selectedUrgency ? problem.urgency === selectedUrgency : true;
+    const matchesState = selectedState ? problem.state === selectedState : true;
+    const matchesDistrict = selectedDistrict ? problem.district === selectedDistrict : true;
+    const matchesShortBy = selectedMostUpvotes ? 
+      (selectedMostUpvotes === "Most Upvotes" ? problem.upvotes > 0 : problem.views > 0) : true;
+
+    return matchesCategory && matchesUrgency && matchesState && matchesDistrict && matchesShortBy;
+  });
+
+  let sortedProblems = [...filteredProblems];
+
+  if (selectedMostUpvotes === "Most Upvotes") {
+    sortedProblems.sort((a, b) => b.upvotes - a.upvotes);
+  } else if (selectedMostUpvotes === "Most Views") {
+    sortedProblems.sort((a, b) => b.views - a.views);
+  }
 
   return (
     <div className="min-h-screen bg-[#F4FBF7] bg-cover bg-center px-4 sm:px-6 lg:px-12 py-16 lg:py-20 font-poppins">
@@ -74,7 +94,10 @@ function AllProblems() {
         {/* Filters */}
         <div className="relative mb-6">
           <div className="flex gap-4 overflow-x-auto scroll-smooth pb-2 scrollbar-hide">
-            <button className="flex-shrink-0 px-5 py-2.5 bg-gradient-to-br from-amber-400 to-amber-700 text-white font-semibold rounded-lg shadow-md hover:from-[#0C2218] hover:to-[#0C2216] transition-all">
+            <button
+              onClick={handleClearFilters}
+              className="flex-shrink-0 px-5 py-2.5 bg-gradient-to-br from-amber-400 to-amber-700 text-white font-semibold rounded-lg shadow-md hover:from-[#0C2218] hover:to-[#0C2216] transition-all"
+            >
               All Problems
             </button>
 
@@ -83,13 +106,13 @@ function AllProblems() {
                 label: "Category",
                 value: selectedCategory,
                 setter: setSelectedCategory,
-                options: ["Water", "Road", "Electricity"],
+                options: ["water & sanitation", "road & transport", "electricity", "waste management", "public health", "deforestation", "education", "other"],
               },
               {
                 label: "Urgency",
                 value: selectedUrgency,
                 setter: setSelectedUrgency,
-                options: ["Low", "Medium", "High"],
+                options: ["Low", "Medium", "High", "Critical"],
               },
               {
                 label: "State",
@@ -102,16 +125,15 @@ function AllProblems() {
                 value: selectedDistrict,
                 setter: setSelectedDistrict,
                 options: selectedState
-                  ? states.find((s) => s.state === selectedState)?.districts ||
-                    []
+                  ? states.find((s) => s.state === selectedState)?.districts || []
                   : [],
                 disabled: !selectedState,
               },
               {
                 label: "Sort By",
-                value: selectedPopular,
-                setter: setSelectedPopular,
-                options: ["Most Upvotes", "Most Views"],
+                value: selectedMostUpvotes,
+                setter: setSelectedMostUpvotes,
+                options: ["Most Upvotes"],
               },
             ].map(({ label, value, setter, options, disabled }) => (
               <div key={label} className="relative flex-shrink-0 max-w-[250px]">
@@ -168,14 +190,14 @@ function AllProblems() {
           </p>
         )}
         {error && <p className="text-center text-red-500 text-lg">{error}</p>}
-        {!loading && !error && problems.length === 0 && (
+        {!loading && !error && sortedProblems.length === 0 && (
           <p className="text-center text-gray-500 text-lg">
-            No problems reported yet.
+            No problems match your filters.
           </p>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {problems.map((problem) => (
+          {sortedProblems.map((problem) => (
             <ProblemCard key={problem._id} problem={problem} />
           ))}
         </div>

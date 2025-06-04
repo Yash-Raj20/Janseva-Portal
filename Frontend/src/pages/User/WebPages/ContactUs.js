@@ -1,5 +1,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from "react";
+import axios from "../../../api/User/axios";
+import { toast } from "react-toastify";
 import {
   FaFacebookF,
   FaGithub,
@@ -9,6 +11,32 @@ import {
 } from "react-icons/fa";
 
 const ContactUs = () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const name = e.target.name.value;
+    const email = e.target.email.value;
+    const message = e.target.message.value;
+
+    try {
+      const res = await axios.post(
+        "/contact",
+        { name, email, message },
+        { withCredentials: true }
+      );
+
+      if (res.data.success) {
+        toast.success("Message sent successfully!");
+        e.target.reset();
+      } else {
+        toast.error(res.data.message || "Something went wrong.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error sending message.");
+    }
+  };
+
   return (
     <div
       className="min-h-screen bg-cover bg-center bg-no-repeat text-[#0C2218] font-poppins pt-28 sm:pt-32 md:pt-36 lg:pt-40 py-20 px-6 sm:px-10 lg:px-24"
@@ -66,19 +94,25 @@ const ContactUs = () => {
           </div>
         </div>
 
-        <form className="bg-white rounded-2xl p-8 shadow-lg text-black space-y-6">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white rounded-2xl p-8 shadow-lg text-black space-y-6"
+        >
           <input
             type="text"
+            name="name"
             placeholder="Your Name"
             className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFE26A]"
           />
           <input
             type="email"
+            name="email"
             placeholder="Email Address"
             className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFE26A]"
           />
           <textarea
             placeholder="Your Message"
+            name="message"
             rows="5"
             className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#FFE26A]"
           ></textarea>

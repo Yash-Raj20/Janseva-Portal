@@ -8,6 +8,8 @@ const problemSchema = new mongoose.Schema(
     category: { type: String, required: true },
     urgency: { type: String, required: true },
     contact: { type: String, required: true },
+    state: { type: String, required: true },
+    district: { type: String, required: true },
     image: { type: String, required: true },
     status: {
       type: String,

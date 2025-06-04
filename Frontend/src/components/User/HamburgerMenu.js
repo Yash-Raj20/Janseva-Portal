@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
-import { FaSignInAlt, FaUserPlus, FaUser, FaPowerOff } from "react-icons/fa";
 import { useAuth } from "../../context/User/AuthContext";
 import { useNotifications } from "../../context/User/NotificationContext";
 import NotificationDropdown from "./NotificationBox";
 import "./Hamburger.css";
+import { BookText, Contact, House, LayoutDashboard, LogIn, Podcast, Power, ServerCrash, UserPlus } from "lucide-react";
 
 const useOutsideClick = (ref, onClose) => {
   useEffect(() => {
@@ -36,11 +36,11 @@ const HamburgerMenu = () => {
   };
 
   const mainMenuItems = [
-    { label: "Home", link: "/" },
-    { label: "About", link: "/about-us" },
-    { label: "Problems", link: "/all-problems" },
-    { label: "Raise Problem", link: "/submit" },
-    { label: "Contact", link: "/contact-us" },
+    { label: "Home", link: "/", icon: <House size ={18} /> },
+    { label: "About", link: "/about-us", icon: <BookText size ={18} /> },
+    { label: "Problems", link: "/all-problems", icon: <ServerCrash size ={18}/> },
+    { label: "Raise Problem", link: "/submit", icon: <Podcast size ={18}/> },
+    { label: "Contact", link: "/contact-us", icon: <Contact size ={18}/> },
   ];
 
   const authMenuItems = user
@@ -48,12 +48,12 @@ const HamburgerMenu = () => {
         {
           label: "Dashboard",
           link: "/dashboard",
-          icon: <FaUser />,
+          icon: <LayoutDashboard size ={18} />,
           action: () => setOpen(false),
         },
         {
           label: "Logout",
-          icon: <FaPowerOff />,
+          icon: <Power size ={18} />,
           action: () => {
             handleLogout();
           },
@@ -63,13 +63,13 @@ const HamburgerMenu = () => {
         {
           label: "Login",
           link: "/login",
-          icon: <FaSignInAlt />,
+          icon: <LogIn size ={18} />,
           action: () => setOpen(false),
         },
         {
           label: "Register",
           link: "/register",
-          icon: <FaUserPlus />,
+          icon: <UserPlus size ={18} />,
           action: () => setOpen(false),
         },
       ];
@@ -108,31 +108,32 @@ const HamburgerMenu = () => {
               key={item.link}
               to={item.link}
               onClick={() => setOpen(false)}
-              className="text-[#0C2218] hover:text-[#b89e37] font-medium transition"
+              className="text-[#0C2218] hover:text-[#b89e37] font-normal transition flex items-center gap-2"
             >
+              {item.icon}
               {item.label}
             </Link>
           ))}
-
+          <hr />
           {authMenuItems.map((item, index) =>
             item.link ? (
               <Link
                 key={index}
                 to={item.link}
                 onClick={item.action}
-                className="text-[#0C2218] hover:text-[#b89e37] font-medium transition flex items-center gap-2"
+                className="text-[#0C2218] hover:text-[#b89e37] font-normal transition flex items-center gap-2"
               >
                 {item.icon}
-                <span>{item.label}</span>
+                {item.label}
               </Link>
             ) : (
               <button
                 key={index}
                 onClick={item.action}
-                className="text-[#0C2218] hover:text-[#b89e37] font-medium transition flex items-center gap-2"
+                className="text-[#0C2218] hover:text-[#b89e37] font-normal transition flex items-center gap-2"
               >
                 {item.icon}
-                <span>{item.label}</span>
+                {item.label}
               </button>
             )
           )}

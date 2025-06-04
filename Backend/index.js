@@ -25,6 +25,7 @@ import authRoutes from './routes/authRoutes.js';
 import problemRoutes from './routes/problemRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import notificationRoutes from './routes/notificationRoute.js';
+import contactRoutes from './routes/contactRoutes.js'
 import { createNotification } from './controllers/NotificationController/notifyController.js';
 
 // -----------------------------
@@ -61,6 +62,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/problems', problemRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api', contactRoutes);
 
 // -----------------------------
 // Socket.io Setup

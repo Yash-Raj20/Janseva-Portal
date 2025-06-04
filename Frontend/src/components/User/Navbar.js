@@ -9,6 +9,7 @@ import HamburgerMenu from "./HamburgerMenu";
 import { useNotifications } from "../../context/User/NotificationContext";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Tooltip from "./../Tooltip";
 
 const useOutsideClick = (ref, onClose) => {
   useEffect(() => {
@@ -69,13 +70,22 @@ const UserMenu = ({ user }) => {
 
   return (
     <div className="relative" ref={menuRef}>
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-[#FFE26A] hover:bg-[#0C2218] text-black hover:text-white border border-[#FFE26A] flex items-center justify-center transition"
-        aria-label="User menu"
-      >
-        <FaUser className="text-lg md:text-xl" />
-      </button>
+      {user?.profileImage ? (
+        <img
+          src={user.profileImage}
+          alt="Profile"
+          onClick={() => setOpen(!open)}
+          className="w-10 h-10 md:w-10 md:h-10 rounded-full object-cover cursor-pointer border-2 border-[#0C2218] transition"
+        />
+      ) : (
+        <div
+          onClick={() => setOpen(!open)}
+          className="w-10 h-10 md:w-10 md:h-10 rounded-full bg-[#FFE26A] hover:bg-[#0C2218] text-black hover:text-white border border-[#FFE26A] flex items-center justify-center transition cursor-pointer"
+        >
+          <FaUser className="text-lg md:text-xl" />
+        </div>
+      )}
+
       {open && (
         <div className="absolute right-0 mt-2 w-48 bg-white text-gray-500 rounded-md shadow-lg z-20">
           {!user ? (
@@ -193,14 +203,18 @@ const Navbar = () => {
                 </div>
               )}
 
-              <Link
-                to="/all-community"
-                className="bg-[#FFE26A] hover:bg-[#0C2218] text-[14px] md:text-[16px] text-black hover:text-white border border-[#FFE26A] font-medium py-1.5 px-3 md:py-2 md:px-4 transition"
-              >
-                Join Community
-              </Link>
+              <Tooltip text="Join Community">
+                <Link
+                  to="/all-community"
+                  className="bg-[#FFE26A] hover:bg-[#0C2218] text-[14px] md:text-[16px] text-black hover:text-white border border-[#FFE26A] font-medium py-1.5 px-3 md:py-2 md:px-4 transition"
+                >
+                  Join Community
+                </Link>
+              </Tooltip>
 
-              <UserMenu user={user} />
+              <Tooltip text="Your Profile">
+                <UserMenu user={user} />
+              </Tooltip>
             </div>
           </div>
         </div>

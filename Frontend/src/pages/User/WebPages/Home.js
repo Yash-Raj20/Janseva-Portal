@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import "./Home.css";
 import MissionSection from "../../../components/User/HomeComponent/MissionSection";
 import WhyChooseUs from "../../../components/User/HomeComponent/WhyChooseUs";
@@ -12,8 +12,19 @@ import CallToAction from "../../../components/User/HomeComponent/CallToAction";
 import WorkStep from "../../../components/User/HomeComponent/WorkStep";
 import FAQSection from "../../../components/User/HomeComponent/FAQ";
 import ImpactStories from "../../../components/User/HomeComponent/OurStory";
+import TopUpvotedProblems from "../../../components/User/ProblemSection/TopUpvotedProblems";
+import axios from "../../../api/User/axios";
 
 const Home = () => {
+  const [problems, setProblems] = useState([]);
+  useEffect(() => {
+    axios
+      .get("/problems")
+      .then((res) => {
+        setProblems(res.data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   return (
     <div className="bg-[#F4FBF7] min-h-screen flex flex-col font-poppins">
@@ -120,6 +131,9 @@ const Home = () => {
 
       {/* How It Works */}
       <WorkStep />
+
+      {/* Top Upvoted Problems */}
+      <TopUpvotedProblems problems={problems} />
 
       {/* Why Choose Us */}
       <WhyChooseUs />

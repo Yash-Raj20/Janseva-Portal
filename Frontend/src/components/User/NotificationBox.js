@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Bell } from "lucide-react";
 import { useNotifications } from "../../context/User/NotificationContext";
+import Tooltip from "../Tooltip";
 
 export default function NotificationBox({ unreadCount = 0 }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +32,7 @@ export default function NotificationBox({ unreadCount = 0 }) {
 
   return (
     <div className="relative" ref={dropdownRef}>
+      <Tooltip text="Notifications">
       <button
         onClick={() => setIsOpen((prev) => !prev)}
         className="relative focus:outline-none"
@@ -43,6 +45,7 @@ export default function NotificationBox({ unreadCount = 0 }) {
           </span>
         )}
       </button>
+      </Tooltip>
 
       {isOpen && (
         <div className="absolute top-12 right-0 bg-white shadow-xl rounded-lg w-72 sm:w-72 lg:w-96 p-5 flex flex-col space-y-4 z-50">

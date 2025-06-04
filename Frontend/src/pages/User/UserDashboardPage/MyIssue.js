@@ -65,7 +65,7 @@ export default function MyIssues() {
         <FaExclamationCircle className="text-yellow-600" /> My Issues
       </h2>
 
-      <div className="flex flex-col lg:flex-col sm:flex-col gap-20">
+      <div className="flex flex-col lg:flex-col sm:flex-col gap-10">
       {/* PENDING ISSUES */}
       <section>
         <h2 className="text-xl font-bold mb-6 flex items-center gap-2">🕒 Pending Issues</h2>
@@ -92,7 +92,7 @@ export default function MyIssues() {
       </section>
 
       {/* UNDER PROCESS ISSUES */}
-      <section className="mt-12">
+      <section>
         <h2 className="text-xl font-bold mb-6 flex items-center gap-2">🔄 Under Process Issues</h2>
         {process.length > 0 ? (
           <>

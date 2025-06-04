@@ -6,10 +6,23 @@ import { io } from "../../index.js";
 // ---------------------- Create a Problem ----------------------
 export const createProblem = async (req, res) => {
   try {
-    const { title, description, location, category, urgency, contact } = req.body;
+    const { title, description, location, category, urgency, contact, state, district } =
+      req.body;
 
-    if (!title || !description || !location || !category || !urgency || !contact || !req.file) {
-      return res.status(400).json({ error: "All fields including image are required." });
+    if (
+      !title ||
+      !description ||
+      !location ||
+      !category ||
+      !urgency ||
+      !contact ||
+      !state ||
+      !district ||
+      !req.file
+    ) {
+      return res
+        .status(400)
+        .json({ error: "All fields including image are required." });
     }
 
     if (!req.user || (!req.user._id && !req.user.id)) {
@@ -26,6 +39,8 @@ export const createProblem = async (req, res) => {
       category,
       urgency,
       contact,
+      state,
+      district,
       userId,
       image: imageUrl,
     });
@@ -67,7 +82,9 @@ export const updateStatus = async (req, res) => {
   const validStatuses = ["Pending", "Process", "Resolved"];
 
   if (!status || !validStatuses.includes(status)) {
-    return res.status(400).json({ message: "Invalid or missing status value." });
+    return res
+      .status(400)
+      .json({ message: "Invalid or missing status value." });
   }
 
   try {
@@ -92,10 +109,14 @@ export const updateStatus = async (req, res) => {
       io.emit("problemStatusUpdated", { problemId: problem._id, status });
     }
 
-    return res.status(200).json({ message: "Status updated successfully", problem });
+    return res
+      .status(200)
+      .json({ message: "Status updated successfully", problem });
   } catch (error) {
     console.error("Error updating problem status:", error);
-    return res.status(500).json({ message: "Server error", error: error.message });
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message });
   }
 };
 
@@ -106,7 +127,9 @@ export const upvote = async (req, res) => {
     const userId = req.user?._id?.toString() || req.user?.id?.toString();
 
     if (!userId) {
-      return res.status(401).json({ message: "You must be logged in to upvote." });
+      return res
+        .status(401)
+        .json({ message: "You must be logged in to upvote." });
     }
 
     const problem = await Problem.findById(problemId);
@@ -117,7 +140,9 @@ export const upvote = async (req, res) => {
     const hasUpvoted = problem.upvotes.some((id) => id.toString() === userId);
 
     if (hasUpvoted) {
-      problem.upvotes = problem.upvotes.filter((id) => id.toString() !== userId);
+      problem.upvotes = problem.upvotes.filter(
+        (id) => id.toString() !== userId
+      );
       await problem.save();
       return res.status(200).json({
         message: "Upvote removed successfully",
@@ -133,22 +158,6 @@ export const upvote = async (req, res) => {
     }
   } catch (error) {
     console.error("Error in upvoting:", error);
-    return res.status(500).json({ message: "Server Error" });
-  }
-};
-
-// ---------------------- Get Top 5 Most Upvoted ----------------------
-export const topVoted = async (req, res) => {
-  try {
-    const problems = await Problem.find().populate("userId", "name").lean();
-
-    const topIssues = problems
-      .sort((a, b) => b.upvotes.length - a.upvotes.length)
-      .slice(0, 5);
-
-    return res.status(200).json(topIssues);
-  } catch (error) {
-    console.error("Error fetching top voted issues:", error);
     return res.status(500).json({ message: "Server Error" });
   }
 };
