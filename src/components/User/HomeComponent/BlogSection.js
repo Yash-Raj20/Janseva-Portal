@@ -14,13 +14,19 @@ const services = [
     desc: "10 ways modern cities stay clean and green",
     date: "March 10, 2025",
   },
+  {
+    image: "/assets/Img3.jpg",
+    title: "Street cleaning and sanitation",
+    desc: "The importance of street cleaning in cities",
+    date: "Feb 25, 2025",
+  },
 ];
 
 const OurBlog = () => {
   return (
     <section className="bg-[#f3f9f6] py-24 px-4 sm:px-6 lg:px-10 text-center">
       {/* Heading Section */}
-      <div className="flex flex-col lg:flex-row items-center justify-between max-w-7xl mx-auto mb-16 gap-8">
+      <div className="flex flex-col lg:flex-row items-center justify-between max-w-[94rem] mx-auto mb-16 gap-8">
         <div className="text-start w-full lg:w-1/2 md:ml-16">
           <p className="text-lg font-medium text-[#0C2218] uppercase tracking-wide">
             Our Latest Articles
@@ -38,14 +44,14 @@ const OurBlog = () => {
         </div>
 
         <div className="w-full lg:w-1/2 flex lg:justify-end">
-          <button className="w-full md:mr-16 sm:w-auto lg:w-[30%] border border-[#0C2218] px-6 py-4 text-[#0C2218] text-sm font-semibold hover:bg-[#0C2218] hover:text-white uppercase transition-all">
+          <button className="w-full md:mr-16 sm:w-auto lg:w-[30%] border rounded-md border-[#0C2218] px-6 py-4 text-[#0C2218] text-sm font-semibold hover:bg-[#0C2218] hover:text-white uppercase transition-all">
             All Articles
           </button>
         </div>
       </div>
 
       {/* Blog Cards Grid */}
-      <div className="grid gap-8 sm:grid-cols-2 max-w-6xl mx-auto">
+      <div className="grid gap-8 sm:grid-cols-2 md:grid-cols-3 max-w-[86rem] mx-auto">
         {services.map((service, index) => (
           <div
             key={index}
@@ -69,15 +75,13 @@ const OurBlog = () => {
             <img
               src={service.image}
               loading="lazy"
-               effect="blur"
+              effect="blur"
               alt="Article Thumbnail"
               className="w-full h-64 object-cover object-center px-6 mb-4"
             />
 
             <div className="px-6 mb-6">
-              <button
-                className="w-full sm:w-auto px-4 py-2 border-2 border-[#FFE26A] flex items-center justify-center gap-2 text-[#0C2218] hover:bg-[#0C2218] hover:text-white transition-all text-sm font-semibold"
-              >
+              <button className="w-full rounded-md sm:w-auto px-4 py-2 border-2 border-[#FFE26A] flex items-center justify-center gap-2 text-[#0C2218] hover:bg-[#0C2218] hover:text-white transition-all text-sm font-semibold">
                 <FaBook />
                 Read Article
               </button>

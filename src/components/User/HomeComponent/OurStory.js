@@ -43,13 +43,13 @@ export default function ImpactStories() {
         {stories.map((story, idx) => (
           <div
             key={idx}
-            className="bg-white border border-[#FFE26A] shadow-md p-4 rounded-lg"
+            className="bg-white border border-[#FFE26A] shadow-md p-4 rounded-lg cursor-pointer transform transition-all duration-300 hover:scale-105 hover:shadow-xl"
           >
             <LazyLoadImage
               effect="blur"
               src={story.image}
               alt={story.title}
-              wrapperClassName="w-full h-48" // key fix
+              wrapperClassName="w-full h-48"
               className="w-full h-48 object-cover mb-4 rounded-md"
             />
 

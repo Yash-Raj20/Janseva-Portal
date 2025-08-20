@@ -31,9 +31,9 @@ const Home = () => {
     <div className="bg-[#F4FBF7] min-h-screen flex flex-col font-poppins">
       {/* Hero Section */}
       <div className="relative min-h-[100vh] w-full">
-          <HeroSection />
-          {/* <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-[#ffff] to-transparent z-10" /> */}
-          <div className="absolute bottom-0 w-full h-[150px] bg-gradient-to-t from-[#0C2218] to-transparent z-20" />
+        <HeroSection />
+        {/* <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-[#ffff] to-transparent z-10" /> */}
+        <div className="absolute bottom-0 w-full h-[150px] bg-gradient-to-t from-[#0C2218] to-transparent z-20" />
       </div>
 
       {/* Trusted Partners Section */}
@@ -126,18 +126,25 @@ const Home = () => {
 
       {/* Ongoing Initiatives */}
       <section className="bg-[#f3f9f6] py-16 px-4 sm:px-6 lg:px-10 text-center">
-        <img
-          src="./Logo/signature.svg"
-          alt="Underline"
-          className="mx-auto h-6 w-32 object-contain"
-        />
-        <p className="text-lg font-medium mb-5 text-[#0C2218] uppercase tracking-wide">
-          Our Ongoing Initiatives
-        </p>
-        <p className="max-w-2xl mx-auto text-base sm:text-lg text-gray-600 mb-10">
-          Here are some active projects that are transforming local communities.
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 max-w-7xl mx-auto gap-10">
+        {/* Heading */}
+        <div className="mb-12 max-w-2xl mx-auto">
+          <img
+            src="./Logo/signature.svg"
+            alt="Underline"
+            className="mx-auto h-6 w-32 object-contain mb-4"
+            loading="lazy"
+          />
+          <p className="text-lg font-medium mb-3 text-[#0C2218] uppercase tracking-wide">
+            Our Ongoing Initiatives
+          </p>
+          <p className="text-gray-600 text-base sm:text-lg">
+            Here are some active projects that are transforming local
+            communities.
+          </p>
+        </div>
+
+        {/* Initiatives Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {[
             {
               title: "Clean India Drive – Swachh Bharat Collaboration",
@@ -172,12 +179,16 @@ const Home = () => {
           ].map((item, idx) => (
             <div
               key={idx}
-              className="bg-white text-[#0C2218] p-6 shadow-lg cursor-pointer border border-[#FFE26A] hover:bg-[#0C2218] hover:text-white transition-all"
+              className="relative bg-white text-[#0C2218] p-6 rounded-xl shadow-md cursor-pointer border border-[#FFE26A] overflow-hidden transition-transform duration-500 hover:scale-105 hover:shadow-2xl hover:bg-[#0C2218] hover:text-white"
             >
-              <h3 className="text-lg sm:text-xl font-semibold mb-4">
+              <h3 className="text-lg sm:text-xl font-semibold mb-3 relative z-10">
                 {item.title}
               </h3>
-              <p className="opacity-85">{item.description}</p>
+              <p className="text-gray-700 relative z-10 text-sm sm:text-base">
+                {item.description}
+              </p>
+              {/* Optional gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0C2218]/70 via-[#0C2218]/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500 rounded-xl"></div>
             </div>
           ))}
         </div>
@@ -192,7 +203,7 @@ const Home = () => {
       {/* Get in Touch */}
       <section className="contact bg-[#0C2218] py-28 px-4 sm:px-6 lg:px-10 text-center">
         {/* Heading Section */}
-        <div className="flex flex-col lg:flex-row items-center w-full max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row items-center w-full max-w-[85rem] mx-auto">
           {/* Text Section */}
           <div className="text-start mb-14 lg:mb-0 lg:ml-10 w-full lg:w-[60%]">
             <p className="text-lg font-medium text-white uppercase tracking-wide">
@@ -218,7 +229,7 @@ const Home = () => {
 
           {/* Button Section */}
           <div className="flex justify-center lg:justify-end w-full lg:w-[40%] mt-8 lg:mt-0">
-            <button className="w-full sm:w-auto border border-white px-6 py-4 text-white text-sm font-semibold hover:bg-white hover:text-[#0C2218] uppercase transition-all">
+            <button className="w-full sm:w-auto border rounded-md border-white px-6 py-4 text-white text-sm font-semibold hover:bg-white hover:text-[#0C2218] uppercase transition-all">
               Contact Now
             </button>
           </div>

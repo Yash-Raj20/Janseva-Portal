@@ -15,15 +15,15 @@ export default function CallToAction() {
 
       <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
         <Link
-          to="/report"
-          className="flex items-center justify-center gap-2 bg-[#FFE26A] text-[#0C2218] font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg hover:bg-[#0c2218ea] hover:text-white transition duration-300"
+          to="/submit"
+          className="flex items-center justify-center gap-2 bg-[#FFE26A] text-[#0C2218] font-semibold px-6 sm:px-8 py-3 rounded-md shadow-lg hover:bg-[#0c2218ea] hover:text-white transition duration-300"
         >
           <FaExclamationCircle className="text-lg" />
           Report a Problem
         </Link>
         <Link
           to="/volunteer"
-          className="flex items-center justify-center gap-2 bg-white text-[#0C2218] font-semibold px-6 sm:px-8 py-3 rounded-xl shadow-lg hover:bg-[#0C2218] hover:text-white transition duration-300"
+          className="flex items-center justify-center gap-2 bg-white text-[#0C2218] font-semibold px-6 sm:px-8 py-3 rounded-md shadow-lg hover:bg-[#0C2218] hover:text-white transition duration-300"
         >
           <FaHandsHelping className="text-lg" />
           Become a Volunteer
