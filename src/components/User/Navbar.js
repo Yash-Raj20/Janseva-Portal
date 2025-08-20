@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/User/AuthContext";
 import NotificationDropdown from "./NotificationBox";
 import { FaUser } from "react-icons/fa";
@@ -137,9 +137,11 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { notifications } = useNotifications();
   const unreadCount = notifications.length;
+  const location = useLocation();
+  const isHomePage = location.pathname === "/";
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 50);
+    const handleScroll = () => setScrolled(window.scrollY > 100);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -147,26 +149,42 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 w-full z-50 px-4 sm:px-6 md:px-10 lg:px-20 py-3 md:py-4 transition-all duration-500 font-poppins ${
-          scrolled ? "bg-white shadow-md" : "bg-transparent"
+        className={`fixed top-4 left-0 right-0 z-50 mx-4 md:mx-10 py-3 md:py-4 px-4 sm:px-6 md:px-10 lg:px-20 transition-all duration-500 font-poppins rounded-xl shadow-[0px_0px_4px_1px_rgba(0,_0,_0,_0.35)] ${
+          scrolled
+            ? "bg-white shadow-md"
+            : "backdrop-blur-sm bg-white/20 border border-white/20"
         }`}
       >
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link
             to="/"
-            className="text-xl md:text-2xl font-extrabold text-black flex items-center space-x-2"
+            className="text-xl md:text-2xl font-extrabold flex items-center space-x-2"
           >
             <img
-              src="/Logo/signature.svg"
+              src={
+                isHomePage
+                  ? scrolled
+                    ? "/Logo/signature.svg"
+                    : "/Logo/signatureWhite.svg"
+                  : "/Logo/signature.svg"
+              }
               alt="JanSeva Portal"
-              className="h-8 md:h-10 w-auto object-cover"
+              className="h-8 md:h-10 w-auto object-cover transition-all duration-500"
               loading="lazy"
             />
           </Link>
 
           {/* Desktop Menu */}
-          <div className="hidden lg:flex gap-6 xl:gap-10 uppercase text-[14px] md:text-[16px] text-[#0C2218] font-normal">
+          <div
+            className={`hidden lg:flex gap-6 xl:gap-10 uppercase text-[14px] md:text-[16px] font-normal ${
+              isHomePage
+                ? scrolled
+                  ? "text-[#0C2218]"
+                  : "text-white"
+                : "text-[#0C2218]"
+            }`}
+          >
             <Link to="/" className="hover:text-[#b89e37] transition">
               Home
             </Link>
@@ -182,7 +200,7 @@ const Navbar = () => {
             <Link to="/submit" className="hover:text-[#b89e37] transition">
               Raise Problem
             </Link>
-            <Link to="/contact-us" className="hover:text-[#b89e37] transition">
+            <Link to="/contact-us" className="hover:text-[#b89e37] transition ">
               Contact
             </Link>
           </div>
@@ -206,7 +224,7 @@ const Navbar = () => {
               <Tooltip text="Join Community">
                 <Link
                   to="/all-community"
-                  className="bg-[#FFE26A] hover:bg-[#0C2218] text-[14px] md:text-[16px] text-black hover:text-white border border-[#FFE26A] font-medium py-1.5 px-3 md:py-2 md:px-4 transition"
+                  className="bg-[#FFE26A] hover:bg-[#0C2218] text-[14px] md:text-[16px] text-black hover:text-white border border-[#FFE26A] rounded-md font-medium py-1.5 px-3 md:py-2 md:px-4 transition"
                 >
                   Join Community
                 </Link>

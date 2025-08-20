@@ -38,7 +38,7 @@ export default function NotificationBox({ unreadCount = 0 }) {
         className="relative focus:outline-none"
         aria-label="Notifications"
       >
-        <Bell className="w-6 h-6 text-[#0C2218]" />
+        <Bell className="w-6 h-6 text-[#cfab1a]" />
         {unreadCount > 0 && (
           <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold min-w-[18px] h-5 rounded-full flex items-center justify-center px-1.5">
             {unreadCount > 99 ? "99+" : unreadCount}

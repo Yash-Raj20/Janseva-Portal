@@ -14,6 +14,7 @@ import FAQSection from "../../../components/User/HomeComponent/FAQ";
 import ImpactStories from "../../../components/User/HomeComponent/OurStory";
 import TopUpvotedProblems from "../../../components/User/ProblemSection/TopUpvotedProblems";
 import axios from "../../../api/User/axios";
+import HeroSection from "../../../components/User/HomeComponent/HeroSection";
 
 const Home = () => {
   const [problems, setProblems] = useState([]);
@@ -29,37 +30,10 @@ const Home = () => {
   return (
     <div className="bg-[#F4FBF7] min-h-screen flex flex-col font-poppins">
       {/* Hero Section */}
-      <div className="relative min-h-[110vh] w-full">
-        <div className="absolute inset-0 z-0">
-          <img
-            alt=""
-            src="/assets/WorkImg2.jpg"
-            className="w-full h-full object-cover filter"
-          />
-
-          <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-[#ffff] to-transparent z-10" />
-          <div className="absolute bottom-0 w-full h-[500px] bg-gradient-to-t from-[#0C2218] to-transparent z-20" />
-        </div>
-
-        <div className="relative z-20 flex flex-col justify-center items-center mt-[13rem] lg:mt-[20rem] md:mt-[14rem] text-white text-center px-4">
-          <h1 className="text-3xl sm:text-4xl md:text-6xl font-semibold mb-6 sm:mb-8 heading leading-tight">
-            Transforming urban spaces,
-            <br className="hidden md:block" /> one step at a time
-          </h1>
-          <p className="text-sm sm:text-base md:text-lg mb-6 sm:mb-8 max-w-3xl text-gray-200">
-            Empowering citizens to raise issues and accelerate development
-            through smart solutions, infrastructure enhancement, and clean,
-            sustainable practices.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4">
-            <button className="bg-[#FFE26A] hover:bg-[#0C2218] text-black hover:text-white border border-[#FFE26A] font-medium py-3 px-6 transition-all">
-              MAKE A REQUEST
-            </button>
-            <button className="bg-white/20 hover:bg-white text-white hover:text-black transition-all border border-white font-medium py-3 px-6">
-              OUR SERVICES
-            </button>
-          </div>
-        </div>
+      <div className="relative min-h-[100vh] w-full">
+          <HeroSection />
+          {/* <div className="absolute top-0 w-full h-40 bg-gradient-to-b from-[#ffff] to-transparent z-10" /> */}
+          <div className="absolute bottom-0 w-full h-[150px] bg-gradient-to-t from-[#0C2218] to-transparent z-20" />
       </div>
 
       {/* Trusted Partners Section */}
