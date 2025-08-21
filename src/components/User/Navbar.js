@@ -166,7 +166,7 @@ const Navbar = () => {
                 isHomePage
                   ? scrolled
                     ? "/Logo/signature.svg"
-                    : "/Logo/signatureWhite.svg"
+                    : "/Logo/SignatureWhite.svg"
                   : "/Logo/signature.svg"
               }
               alt="JanSeva Portal"

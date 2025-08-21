@@ -33,8 +33,8 @@ const AllWorks = () => {
             See our best works
           </p>
           <img
-            src="./Logo/signatureWhite.svg"
-            alt="Underline"
+            src="./Logo/SignatureWhite.svg"
+            alt="Logo"
             className="mb-6 h-6 w-32 object-contain"
             loading="lazy"
           />

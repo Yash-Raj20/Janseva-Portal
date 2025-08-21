@@ -212,7 +212,7 @@ const Home = () => {
 
             {/* Professional SVG underline */}
             <img
-              src="./Logo/signatureWhite.svg"
+              src="./Logo/SignatureWhite.svg"
               alt="Underline"
               className="mb-6 h-6 w-32 object-contain"
             />

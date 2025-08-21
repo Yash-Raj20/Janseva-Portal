@@ -75,11 +75,11 @@ const App = () => {
       {/* Content */}
       <div className="relative z-10 w-full h-full flex flex-col md:flex-row items-center justify-center mt-8 p-8">
         {/* Left Side */}
-        <div className="w-full md:w-1/2 flex flex-col justify-center items-start p-4 sm:p-8">
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-start p-4 sm:p-8 md:mr-12">
           <p className="text-xl sm:text-2xl font-light mb-2">
             {slides[currentSlide].title}
           </p>
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-bold mb-4">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4">
             {slides[currentSlide].subtitle}
           </h1>
           <p className="text-base sm:text-lg mb-8 max-w-lg">
@@ -96,7 +96,7 @@ const App = () => {
         </div>
 
         {/* Right Side: Thumbnails */}
-        <div className="hidden md:flex w-1/2 justify-center items-center space-x-4 h-full">
+        <div className="hidden md:flex w-1/2 justify-center items-center md:space-x-2 lg:space-x-4 h-full ">
           {slides.map((slide, index) => (
             <div
               key={index}
