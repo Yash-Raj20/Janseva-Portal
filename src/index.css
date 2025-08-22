@@ -10,3 +10,12 @@
 .animate-blink {
   animation: blink 1s ease-in-out 2;
 }
+
+/* global.css ya tailwind.css me */
+html, body {
+  overflow-x: hidden;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+}
