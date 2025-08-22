@@ -62,14 +62,19 @@ const ProblemCard = ({ problem }) => {
     const diffInMinutes = Math.floor(diffInSeconds / 60);
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
+    const diffInMonths = Math.floor(diffInDays / 30);
+    const diffInYears = Math.floor(diffInMonths / 12);
 
-    if (diffInDays > 0)
-      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
-    if (diffInHours > 0)
-      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
-    if (diffInMinutes > 0)
+    if (diffInSeconds < 60) return "Just now";
+    if (diffInMinutes < 60)
       return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
-    return "Just now";
+    if (diffInHours < 24)
+      return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
+    if (diffInDays < 30)
+      return `${diffInDays} day${diffInDays > 1 ? "s" : ""} ago`;
+    if (diffInMonths < 12)
+      return `${diffInMonths} month${diffInMonths > 1 ? "s" : ""} ago`;
+    return `${diffInYears} year${diffInYears > 1 ? "s" : ""} ago`;
   };
 
   const handleClick = () => {
@@ -117,7 +122,8 @@ const ProblemCard = ({ problem }) => {
         <div className="relative h-60 overflow-hidden">
           <img
             src={problem.image}
-            alt={problem.title}
+            alt={problem.title || "Problem Image"}
+            loading="lazy"
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />

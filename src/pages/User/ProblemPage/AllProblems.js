@@ -59,14 +59,29 @@ function AllProblems() {
 
   // Filtered & Sorted Problems
   const filteredProblems = problems.filter((problem) => {
-    const matchesCategory = selectedCategory ? problem.category === selectedCategory : true;
-    const matchesUrgency = selectedUrgency ? problem.urgency === selectedUrgency : true;
+    const matchesCategory = selectedCategory
+      ? problem.category === selectedCategory
+      : true;
+    const matchesUrgency = selectedUrgency
+      ? problem.urgency === selectedUrgency
+      : true;
     const matchesState = selectedState ? problem.state === selectedState : true;
-    const matchesDistrict = selectedDistrict ? problem.district === selectedDistrict : true;
-    const matchesShortBy = selectedMostUpvotes ? 
-      (selectedMostUpvotes === "Most Upvotes" ? problem.upvotes > 0 : problem.views > 0) : true;
+    const matchesDistrict = selectedDistrict
+      ? problem.district === selectedDistrict
+      : true;
+    const matchesShortBy = selectedMostUpvotes
+      ? selectedMostUpvotes === "Most Upvotes"
+        ? problem.upvotes > 0
+        : problem.views > 0
+      : true;
 
-    return matchesCategory && matchesUrgency && matchesState && matchesDistrict && matchesShortBy;
+    return (
+      matchesCategory &&
+      matchesUrgency &&
+      matchesState &&
+      matchesDistrict &&
+      matchesShortBy
+    );
   });
 
   let sortedProblems = [...filteredProblems];
@@ -93,10 +108,10 @@ function AllProblems() {
 
         {/* Filters */}
         <div className="relative mb-6">
-          <div className="flex gap-4 overflow-x-auto scroll-smooth pb-2 scrollbar-hide">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-wrap gap-4">
             <button
               onClick={handleClearFilters}
-              className="flex-shrink-0 px-5 py-2.5 bg-gradient-to-br from-amber-400 to-amber-700 text-white font-semibold rounded-lg shadow-md hover:from-[#0C2218] hover:to-[#0C2216] transition-all"
+              className="px-5 py-2.5 bg-gradient-to-br from-amber-400 to-amber-700 text-white font-semibold rounded-lg shadow-md hover:from-[#0C2218] hover:to-[#0C2216] transition-all"
             >
               All Problems
             </button>
@@ -106,7 +121,16 @@ function AllProblems() {
                 label: "Category",
                 value: selectedCategory,
                 setter: setSelectedCategory,
-                options: ["water & sanitation", "road & transport", "electricity", "waste management", "public health", "deforestation", "education", "other"],
+                options: [
+                  "water & sanitation",
+                  "road & transport",
+                  "electricity",
+                  "waste management",
+                  "public health",
+                  "deforestation",
+                  "education",
+                  "other",
+                ],
               },
               {
                 label: "Urgency",
@@ -125,7 +149,8 @@ function AllProblems() {
                 value: selectedDistrict,
                 setter: setSelectedDistrict,
                 options: selectedState
-                  ? states.find((s) => s.state === selectedState)?.districts || []
+                  ? states.find((s) => s.state === selectedState)?.districts ||
+                    []
                   : [],
                 disabled: !selectedState,
               },
@@ -136,7 +161,7 @@ function AllProblems() {
                 options: ["Most Upvotes"],
               },
             ].map(({ label, value, setter, options, disabled }) => (
-              <div key={label} className="relative flex-shrink-0 max-w-[250px]">
+              <div key={label} className="relative w-full sm:w-full md:w-auto">
                 <select
                   value={value}
                   onChange={(e) => setter(e.target.value)}
@@ -176,7 +201,7 @@ function AllProblems() {
 
             <button
               onClick={handleClearFilters}
-              className="flex-shrink-0 px-5 py-2.5 border-2 border-[#ffe26a] bg-white text-[#0C2218] font-semibold rounded-full hover:bg-gradient-to-br hover:from-red-500 hover:to-red-700 hover:text-white hover:scale-105 active:scale-95 transition-all duration-300"
+              className="px-5 py-2.5 border-2 border-[#ffe26a] bg-white text-[#0C2218] font-semibold rounded-full hover:bg-gradient-to-br hover:from-red-500 hover:to-red-700 hover:text-white hover:scale-105 active:scale-95 transition-all duration-300"
             >
               Clear Filter
             </button>
