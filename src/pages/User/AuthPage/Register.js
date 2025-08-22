@@ -46,7 +46,7 @@ const Register = () => {
           className="text-white md:w-1/2 mb-10 md:mb-0 md:pr-10 mt-10"
         >
           <img
-            src="/Logo/signatureWhite.svg"
+            src="/Logo/SignatureWhite.svg"
             alt="Logo"
             className="h-14 w-auto mb-6"
             loading="lazy"

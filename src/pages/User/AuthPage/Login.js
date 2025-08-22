@@ -54,7 +54,7 @@ const Login = () => {
         {/* Logo */}
         <div className="flex justify-center mb-6">
           <img
-            src="/Logo/signatureWhite.svg"
+            src="/Logo/SignatureWhite.svg"
             alt="Logo"
             className="h-14 w-auto"
             loading="lazy"

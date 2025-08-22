@@ -15,7 +15,7 @@ const services = [
     date: "March 10, 2025",
   },
   {
-    image: "/assets/Img3.jpg",
+    image: "/assets/img3.jpg",
     title: "Street cleaning and sanitation",
     desc: "The importance of street cleaning in cities",
     date: "Feb 25, 2025",

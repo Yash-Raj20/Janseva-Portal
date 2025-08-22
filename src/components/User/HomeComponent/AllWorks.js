@@ -4,19 +4,19 @@ import "react-lazy-load-image-component/src/effects/blur.css";
 
 const services = [
   {
-    image: "/assets/Img4.jpg",
+    image: "/assets/img4.jpg",
     title: "Public park green space enhancement",
     description:
       "A project to green and enhance public parks, creating new recreational spaces for city residents.",
   },
   {
-    image: "/assets/Img1.jpg",
+    image: "/assets/img1.jpg",
     title: "Street lighting improvement initiative",
     description:
       "A project to upgrade and improve street lighting across the city, ensuring safety and energy efficiency.",
   },
   {
-    image: "/assets/Img3.jpg",
+    image: "/assets/img3.jpg",
     title: "Irrigation system maintenance and repair",
     description:
       "A project to maintain and repair irrigation systems, ensuring efficient water distribution and preventing water leaks.",
