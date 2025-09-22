@@ -16,7 +16,7 @@ import TopUpvotedProblems from "../../../components/User/ProblemSection/TopUpvot
 import axios from "../../../api/User/axios";
 import HeroSection from "../../../components/User/HomeComponent/HeroSection";
 
-const Home = () => {
+export default function Home ()  {
   const [problems, setProblems] = useState([]);
   useEffect(() => {
     axios
@@ -248,4 +248,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+// export default Home;

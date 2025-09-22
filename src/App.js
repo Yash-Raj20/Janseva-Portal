@@ -1,41 +1,57 @@
+import { Suspense, lazy, useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuth } from "./context/User/AuthContext";
 import CustomLoader from "./components/User/CustomLoader";
+import ErrorBoundry from "./pages/ErrorBoundary";
 
-// Layouts
-import UserWrapper from "./layout/User/WraperLayout";
-import Layout from "./layout/User/Layout";
+// Layouts & Components
+const UserWrapper = lazy(() => import("./layout/User/WraperLayout"));
+const Layout = lazy(() => import("./layout/User/Layout"));
+const ProtectedRoute = lazy(() => import("./components/User/ProtectedRoute"));
+const SocketNotification = lazy(() =>
+  import("./components/User/NotificationSection/SocketNotification")
+);
 
-// Public User Pages
-import Home from "./pages/User/WebPages/Home";
-import AboutUs from "./pages/User/WebPages/AboutUs";
-import ContactUs from "./pages/User/WebPages/ContactUs";
-import Login from "./pages/User/AuthPage/Login";
-import Register from "./pages/User/AuthPage/Register";
-import SubmitProblem from "./pages/User/ProblemPage/SubmitProblem";
-import AllProblems from "./pages/User/ProblemPage/AllProblems";
-import ProblemDetails from "./pages/User/ProblemPage/ProblemDetails";
+// Public Pages
+const Home = lazy(() => import("./pages/User/WebPages/Home"));
+const AboutUs = lazy(() => import("./pages/User/WebPages/AboutUs"));
+const ContactUs = lazy(() => import("./pages/User/WebPages/ContactUs"));
+const Login = lazy(() => import("./pages/User/AuthPage/Login"));
+const Register = lazy(() => import("./pages/User/AuthPage/Register"));
+const SubmitProblem = lazy(() => import("./pages/User/ProblemPage/SubmitProblem"));
+const AllProblems = lazy(() => import("./pages/User/ProblemPage/AllProblems"));
+const ProblemDetails = lazy(() => import("./pages/User/ProblemPage/ProblemDetails"));
 
-// Protected User Dashboard Pages
-import Dashboard from "./pages/User/UserDashboardPage/Dashboard";
-import Profile from "./pages/User/UserDashboardPage/Profile";
-import MyIssue from "./pages/User/UserDashboardPage/MyIssue";
-import SolvedIssue from "./pages/User/UserDashboardPage/SolvedIssue";
-import Notifications from "./pages/User/UserDashboardPage/Notifications";
-
-// Components
-import SocketNotification from "./components/User/NotificationSection/SocketNotification";
-import ProtectedRoute from "./components/User/ProtectedRoute";
+// Dashboard Pages
+const Dashboard = lazy(() =>
+  import("./pages/User/UserDashboardPage/Dashboard")
+);
+const Profile = lazy(() => import("./pages/User/UserDashboardPage/Profile"));
+const MyIssue = lazy(() => import("./pages/User/UserDashboardPage/MyIssue"));
+const SolvedIssue = lazy(() =>
+  import("./pages/User/UserDashboardPage/SolvedIssue")
+);
+const Notifications = lazy(() =>
+  import("./pages/User/UserDashboardPage/Notifications")
+);
 
 // Error Pages
-import Unauthorized from "./pages/Unauthorized ";
-import NotFoundPage from "./NotFoundPage ";
+const Unauthorized = lazy(() => import("./pages/Unauthorized"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
 function App() {
   const { loading } = useAuth();
+  const [appLoading, setAppLoading] = useState(true);
 
-  if (loading) {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAppLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || appLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <CustomLoader />
@@ -47,36 +63,48 @@ function App() {
 
   return (
     <>
-      <Toaster position="top-right" reverseOrder={false} autoClose={3000} />
+      <Toaster position="top-right" reverseOrder={false} />
 
-      <Routes>
-        {/* === USER ROUTES === */}
-        <Route element={<UserWrapper />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/about-us" element={<AboutUs />} />
-          <Route path="/contact-us" element={<ContactUs />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/submit" element={<SubmitProblem />} />
-          <Route path="/all-problems" element={<AllProblems />} />
-          <Route path="/problems/:id" element={<ProblemDetails />} />
-          <Route path="/unauthorized" element={<Unauthorized />} />
+      <ErrorBoundry>
+        <Suspense
+          fallback={
+            <div className="flex items-center justify-center h-screen">
+              <CustomLoader />
+            </div>
+          }
+        >
+          <Routes>
+            {/* === PUBLIC ROUTES === */}
+            <Route element={<UserWrapper />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/about-us" element={<AboutUs />} />
+              <Route path="/contact-us" element={<ContactUs />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/submit" element={<SubmitProblem />} />
+              <Route path="/all-problems" element={<AllProblems />} />
+              <Route path="/problems/:id" element={<ProblemDetails />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Layout />}>
-              <Route index element={<Dashboard />} />
-              <Route path="profile" element={<Profile />} />
-              <Route path="my-issues" element={<MyIssue />} />
-              <Route path="solved-issues" element={<SolvedIssue />} />
-              <Route path="notifications" element={<Notifications />} />
+              {/* === PROTECTED ROUTES === */}
+              <Route element={<ProtectedRoute />}>
+                <Route path="/dashboard" element={<Layout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="profile" element={<Profile />} />
+                  <Route path="my-issues" element={<MyIssue />} />
+                  <Route path="solved-issues" element={<SolvedIssue />} />
+                  <Route path="notifications" element={<Notifications />} />
+                </Route>
+              </Route>
             </Route>
-          </Route>
-        </Route>
 
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+            {/* === 404 === */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
 
-      {userId && <SocketNotification userId={userId} />}
+          {userId && <SocketNotification userId={userId} />}
+        </Suspense>
+      </ErrorBoundry>
     </>
   );
 }

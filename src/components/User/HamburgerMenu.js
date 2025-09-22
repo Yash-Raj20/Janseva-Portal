@@ -102,7 +102,7 @@ const HamburgerMenu = () => {
 
       {/* Dropdown Menu */}
       {open && (
-        <div className="absolute top-16 right-0 bg-white shadow-xl rounded-lg w-52 sm:w-60 p-5 flex flex-col space-y-4 z-50">
+        <div className="absolute top-12 right-0 bg-gray-100 shadow-xl rounded-lg w-52 sm:w-60 p-5 flex flex-col space-y-4 z-50">
           {mainMenuItems.map((item) => (
             <Link
               key={item.link}

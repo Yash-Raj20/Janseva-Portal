@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import "./About.css";
 
 const AboutUs = () => {
   return (
@@ -254,28 +255,6 @@ const AboutUs = () => {
           </button>
         </section>
       </div>
-
-      {/* Animations */}
-      <style jsx>{`
-        @keyframes blob {
-          0%,
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-          33% {
-            transform: translate(20px, -30px) scale(1.05);
-          }
-          66% {
-            transform: translate(-15px, 20px) scale(0.95);
-          }
-        }
-        .animate-blob {
-          animation: blob 12s infinite ease-in-out;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </div>
   );
 };

@@ -3,48 +3,47 @@ import { useNavigate } from "react-router-dom";
 import axios from "../../api/User/axios";
 
 const AuthContext = createContext();
-
 export const useAuth = () => useContext(AuthContext);
 
 export const UserAuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); // auth check loader
   const navigate = useNavigate();
 
+  // ✅ Auth check when app starts
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const res = await axios.get("/auth/profile", { withCredentials: true });
-        if (res.data.user) {
+        if (res.data?.user) {
           setUser(res.data.user);
         } else {
           setUser(null);
         }
       } catch (err) {
-        console.error("Error fetching user:", err.message);
-        if (err.response && err.response.status === 401) {
+        console.error("Auth check failed:", err.message);
+        if (err.response?.status === 401) {
           setUser(null);
         }
       } finally {
-        setLoading(false);
+        setLoading(false); // auth check finished
       }
     };
 
     fetchUser();
   }, []);
 
+  // ✅ Update profile
   const updateProfile = async (formData) => {
     try {
       const res = await axios.put("/auth/profile", formData, {
         withCredentials: true,
       });
-
-      if (res.data.user) {
+      if (res.data?.user) {
         setUser(res.data.user);
         return { success: true, message: res.data.message };
-      } else {
-        return { success: false, message: "Profile update failed" };
       }
+      return { success: false, message: "Profile update failed" };
     } catch (error) {
       console.error("Profile update error:", error.message);
       return {
@@ -54,23 +53,19 @@ export const UserAuthProvider = ({ children }) => {
     }
   };
 
+  // ✅ Login
   const login = async (credentials) => {
     try {
       await axios.post("/auth/login", credentials, { withCredentials: true });
-
       const res = await axios.get("/auth/profile", { withCredentials: true });
-      if (res.data.user) {
+      if (res.data?.user) {
         setUser(res.data.user);
         return { success: true, message: "Login successful" };
-      } else {
-        setUser(null);
-        return { success: false, message: "User not found after login" };
       }
+      setUser(null);
+      return { success: false, message: "User not found after login" };
     } catch (error) {
-      console.error(
-        "Login error:",
-        error.response?.data?.error || error.message
-      );
+      console.error("Login error:", error.response?.data?.error || error.message);
       setUser(null);
       return {
         success: false,
@@ -79,6 +74,7 @@ export const UserAuthProvider = ({ children }) => {
     }
   };
 
+  // ✅ Logout
   const logout = async () => {
     try {
       await axios.post("/auth/logout", {}, { withCredentials: true });
@@ -90,7 +86,9 @@ export const UserAuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, updateProfile, loading }}>
+    <AuthContext.Provider
+      value={{ user, setUser, login, logout, updateProfile, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

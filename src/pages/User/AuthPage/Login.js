@@ -49,14 +49,14 @@ const Login = () => {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
-        className="relative z-10 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-md p-8 mt-20"
+        className="relative z-10 bg-white/10 backdrop-blur-xl rounded-3xl shadow-2xl w-full max-w-md p-6 mt-20"
       >
         {/* Logo */}
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-4">
           <img
             src="/Logo/SignatureWhite.svg"
             alt="Logo"
-            className="h-14 w-auto"
+            className="h-12 w-auto"
             loading="lazy"
           />
         </div>
@@ -65,12 +65,12 @@ const Login = () => {
         <h2 className="text-3xl font-bold text-white text-center mb-2">
           Welcome Back
         </h2>
-        <p className="text-gray-300 text-center mb-8">
+        <p className="text-gray-300 text-center mb-5">
           Login to continue your journey 🚀
         </p>
 
         {/* Social Login */}
-        <div className="flex justify-center gap-4 mb-8">
+        <div className="flex justify-center gap-4 mb-6">
           <button
             onClick={handleGoogleLogin}
             className="p-3 bg-white rounded-full shadow hover:scale-110 transition"

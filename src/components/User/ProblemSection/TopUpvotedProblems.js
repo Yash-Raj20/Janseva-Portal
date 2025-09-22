@@ -1,7 +1,6 @@
-import React, { useMemo, useRef, lazy, Suspense } from "react";
+import React, { useMemo, useRef } from "react";
 import { CircleArrowLeft, CircleArrowRight } from "lucide-react";
-
-const ProblemCard = lazy(() => import("./ProblemCard"));
+import ProblemCard from "./ProblemCard";
 
 function TopUpvotedProblems({ problems }) {
   const topProblems = useMemo(() => {
@@ -15,9 +14,15 @@ function TopUpvotedProblems({ problems }) {
   const scrollContainerRef = useRef(null);
 
   const handleScroll = (direction) => {
-    const cardWidth = scrollContainerRef.current?.firstChild?.offsetWidth || 300;
-    const scrollAmount = direction === "next" ? cardWidth + 16 : -(cardWidth + 16);
-    scrollContainerRef.current?.scrollBy({ left: scrollAmount, behavior: "smooth" });
+    const cardWidth =
+      scrollContainerRef.current?.firstChild?.offsetWidth || 300;
+    const scrollAmount =
+      direction === "next" ? cardWidth + 20 : -(cardWidth + 20);
+
+    scrollContainerRef.current?.scrollBy({
+      left: scrollAmount,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -28,13 +33,13 @@ function TopUpvotedProblems({ problems }) {
 
       <img
         src="./Logo/signature.svg"
-        alt="Underline"
+        alt="Underline decoration"
         className="mx-auto mb-8 h-6 w-32 object-contain"
         loading="lazy"
       />
 
       {topProblems.length === 0 ? (
-        <p className="text-gray-500 max-w-5xl mx-auto text-center">
+        <p className="text-gray-500 max-w-3xl mx-auto text-center">
           No top voted problems yet.
         </p>
       ) : (
@@ -42,32 +47,32 @@ function TopUpvotedProblems({ problems }) {
           {/* Scrollable container */}
           <div
             ref={scrollContainerRef}
-            className="max-w-[94rem] mx-auto flex gap-4 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory scrollbar-hide"
+            className="max-w-[90rem] mx-auto flex gap-6 overflow-x-auto pb-6 scroll-smooth snap-x snap-mandatory scrollbar-hide px-2"
           >
             {topProblems.map((problem) => (
               <div
                 key={problem._id}
-                className="flex-shrink-0 w-4/5 sm:w-1/2 md:w-1/3 lg:w-1/4 snap-start"
+                className="flex-shrink-0 w-full sm:w-[320px] md:w-[338px] snap-start"
               >
-                <Suspense fallback={<div className="h-48 bg-gray-200 rounded animate-pulse" />}>
                   <ProblemCard problem={problem} />
-                </Suspense>
               </div>
             ))}
           </div>
 
-          {/* Left & Right Buttons */}
+          {/* Scroll Buttons */}
           <button
             onClick={() => handleScroll("prev")}
-            className="absolute left-0 top-1/2 -translate-y-1/2 p-3 bg-[#0C2218] text-white rounded-full hover:bg-[#FFE26A] hover:text-[#0C2218] shadow-lg transition z-10"
+            aria-label="Scroll left"
+            className="absolute left-0 top-1/2 -translate-y-1/2 p-3 sm:p-4 bg-[#0C2218] text-white rounded-full hover:bg-[#FFE26A] hover:text-[#0C2218] shadow-lg transition z-10"
           >
-            <CircleArrowLeft size={28} />
+            <CircleArrowLeft size={20} />
           </button>
           <button
             onClick={() => handleScroll("next")}
-            className="absolute right-0 top-1/2 -translate-y-1/2 p-3 bg-[#0C2218] text-white rounded-full hover:bg-[#FFE26A] hover:text-[#0C2218] shadow-lg transition z-10"
+            aria-label="Scroll right"
+            className="absolute right-0 top-1/2 -translate-y-1/2 p-3 sm:p-4 bg-[#0C2218] text-white rounded-full hover:bg-[#FFE26A] hover:text-[#0C2218] shadow-lg transition z-10"
           >
-            <CircleArrowRight size={28} />
+            <CircleArrowRight size={20} />
           </button>
         </div>
       )}
