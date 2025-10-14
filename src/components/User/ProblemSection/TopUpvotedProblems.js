@@ -4,6 +4,7 @@ import ProblemCard from "./ProblemCard";
 
 function TopUpvotedProblems({ problems }) {
   const topProblems = useMemo(() => {
+    console.log(problems);
     if (!Array.isArray(problems)) return [];
     return [...problems]
       .filter((p) => Array.isArray(p.upvotes))
